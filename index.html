@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Beautiful Swiss cycling Passes</title>
+    <link rel="stylesheet" href="css/material.min.css">
+	<script src="js/material.min.js" async></script>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+	<!-- The drawer is always open in large screens. The header is always shown,
+  even in small screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+    	<!-- Title -->
+      <span class="mdl-layout-title">Swiss cycling Passes</span>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <form id="filter" action="#">
+	  	<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+		  <label class="mdl-button mdl-js-button mdl-button--icon" for="pass-filter">
+		    <i class="material-icons">search</i>
+		  </label>
+		  <div class="mdl-textfield__expandable-holder">
+		    <input class="mdl-textfield__input" type="text" id="pass-filter" pattern="[A-Z,a-z, ]*" placeholder="Filter...">
+		    <label class="mdl-textfield__label" for="pass-filter">Fitler...</label>
+		    <span class="mdl-textfield__error">Letters and spaces only</span>
+		  </div>
+		</div>
+	</form>
+    <nav class="mdl-navigation">
+    	<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+		  <tbody data-bind="foreach: filteredMarkers">
+		    <tr>
+		      <td class="mdl-data-table__cell--non-numeric" data-bind="text: name, event: {click: $parent.showInfoWindow}"></td>
+		    </tr>
+		  </tbody>
+		</table>
+    </nav>
+  </div>
+  <main class="mdl-layout__content">
+    <div id="map"></div>
+  </main>
+</div>
+<script type='text/javascript' src='js/knockout-3.4.2.js' async></script>
+<script type="text/javascript" src="js/app.js" async></script>
+<script>
+function initMap() {
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 11,
+        center: {lat:46.6203586, lng: 8.5441755 },
+        fullscreenControl: false,
+        mapTypeControl: false,
+        mapTypeId: google.maps.MapTypeId.TERRAIN,
+        styles: model.getMapStyle()
+    });
+    //Add all the markers and register event listeners
+    viewModel.init(map);
+}
+</script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4RuSmaLvSGKQdlTWFmQxetwHlh7XECk0&libraries=geometry&callback=initMap"></script>
+</body>
+
+</html>
