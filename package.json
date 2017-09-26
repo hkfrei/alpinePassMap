@@ -1,0 +1,22 @@
+{
+  "name": "neighbourhoodmap",
+  "version": "1.0.0",
+  "description": "A map of swiss alpine passes who are great for cycling",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "map",
+    "google",
+    "maps",
+    "api",
+    "neighbourhood"
+  ],
+  "author": "Hanskaspar Frei",
+  "license": "ISC",
+  "dependencies": {
+    "promise-polyfill": "6.0.2",
+    "whatwg-fetch": "^2.0.3"
+  }
+}

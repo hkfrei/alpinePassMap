@@ -501,14 +501,47 @@ var ViewModel = function() {
         
     };
 
+     /*
+    @description: search wikipedia articles for a given keyword.
+    @param {string} searchstring - the keyword to search for in wikipedia.
+    @return array with two elements. The description and the link to a wikipedia article.
+    */
+    this.getWikipediaArticle = function(searchstring) {
+        fetch("https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search="+searchstring+"&limit=5").then(function(resp) {
+            if (resp.ok) {
+                console.log(resp);
+                return resp.json();
+            }
+            // if response not ok
+            throw new Error('Network response was not ok.');
+        }).then(function(data) {
+            console.log(data);
+            var name = data[0];
+            var description = data[2][0] || 'Sorry, no Wikipedia description available';
+            var link = data[3][0] || 'Sorry, no Wikipedia article available';
+            viewModel.addWikiToInfoWindow(name, description, link);
+        }).catch(error => {
+            console.log('error: ' + error.message);
+        });
+    }
+
+    this.addWikiToInfoWindow = function(name, description, link) {
+        var wikiInfoContent = '<h4>'+name+'</h4>';
+        wikiInfoContent += '<div>' + description + '</div><hr>';
+        wikiInfoContent += '<a href="'+link+'">'+ link + '</a><hr>';
+        console.log(wikiInfoContent);
+        model.infoWindow.setContent(wikiInfoContent);
+    }
+
     /*
     @description: Show the info window an populate it with content.
     @param {object} marker - the map marker object that got clicked.
     */
     this.populateInfoWindow = function(marker) {
+        viewModel.getWikipediaArticle(marker.title);
         //check if there is allready an infoWindow instance available
         if (!model.infoWindow) {
-            model.infoWindow = new google.maps.InfoWindow({});
+            model.infoWindow = new google.maps.InfoWindow({maxWidth: 420});
         }
         //make sure the info window is not already opened on this marker
         if (model.infoWindow.marker != marker) {
@@ -531,7 +564,9 @@ var ViewModel = function() {
                     var nearStreetViewLocation = data.location.latLng;
                     var heading = google.maps.geometry.spherical.computeHeading(
                         nearStreetViewLocation, marker.position);
-                    model.infoWindow.setContent('<h3>'+marker.title+'</h3><div id="pano"></div>');
+                    var iwContent = model.infoWindow.getContent();
+                    iwContent += '</div><div id="pano"></div>';
+                    model.infoWindow.setContent(iwContent);
                     var panoramaOptions = {
                         position: nearStreetViewLocation,
                         pov: {
@@ -549,6 +584,7 @@ var ViewModel = function() {
              50 meters of the markers position 
              */
             streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+            
             model.infoWindow.open(model.map, marker);
         }
     };
