@@ -1,4 +1,4 @@
-/*globals ko, google */
+/*globals ko, google, Promise */
 var model = (function(){
     'use strict';
     // the greyscale style for the map
@@ -408,8 +408,9 @@ var ViewModel = function() {
                 map: map
             });
             mapMarker.addListener('click', function() {
+                model.currentMarker = this;
                 viewModel.bounceOnce(this);
-                viewModel.populateInfoWindow(this);
+                viewModel.showInfoWindow();
             });
             mapMarker.addListener('mouseover', function() {
                 this.setIcon(model.highlightedMarkerIcon());
@@ -443,8 +444,9 @@ var ViewModel = function() {
     this.panToMarkers = function() {
         if (this.filteredMarkers().length === 1) {
             model.map.setZoom(14);
-            model.map.panTo(this.filteredMarkers()[0].location());
-            this.bounceOnce(this.mapMarkers[0]);
+            if (model.map.getCenter() !== this.filteredMarkers()[0].location()) {
+                model.map.panTo(this.filteredMarkers()[0].location());
+            }
         } else {
             model.map.panTo(model.INITIAL_CENTER);
             model.map.setZoom(model.INITIAL_ZOOM);
@@ -467,11 +469,15 @@ var ViewModel = function() {
                 }
             }
         });
-        this.displayMarkers(model.map);
         //display the info window if there is only one marker on the map.
         if (this.filteredMarkers().length === 1) {
-            var visibleListElement  = this.filteredMarkers()[0];
-            this.showInfoWindow(visibleListElement);
+            //model.currentMarker = this.filteredMarkers()[0].id();
+            this.displayMarkers(model.map);
+            this.bounceOnce(this.getMarkerById(this.filteredMarkers()[0].id()));
+            
+        }
+        else {
+            this.displayMarkers(model.map);
         }
         
     };
@@ -487,58 +493,95 @@ var ViewModel = function() {
         this.mapMarkers = [];
     };
 
+    this.showPass = function(listMarker) {
+        var mapMarker = viewModel.getMarkerById(listMarker.id());
+        if (model.currentMarker && (mapMarker.id === model.currentMarker.id)) {
+            console.log('markers equal');
+            if(model.infoWindow.getMap() === null) {
+                model.infoWindow.setMap(model.map);
+            }
+        } else {
+            model.currentMarker = mapMarker;
+            viewModel.showInfoWindow();
+        }
+    };
+
     /*
     @description: show the right info window when a list item gets clicked
     @param {object} marker - the list marker object that got clicked. (not the map marker object).
     */
-    this.showInfoWindow = function(marker) {
-        var mapMarker = viewModel.getMarkerById(marker.id());
-        mapMarker.icon = 
-        viewModel.bounceOnce(mapMarker);
+    this.showInfoWindow = function() {
+        viewModel.bounceOnce(model.currentMarker);
         window.setTimeout(function(){
-            viewModel.populateInfoWindow(mapMarker);
+            viewModel.populateInfoWindow(model.currentMarker);
         }, 750);
-        
+    };
+
+    /*
+    @description: search wikipedia articles for a given keyword.
+    @param {string} searchstring - the keyword to search for in wikipedia.
+    @return promise with the json response or an error message
+    */
+    this.getWikipediaArticle = function(searchstring) {
+        return new Promise(function(resolve, reject) {
+            fetch('https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search='+searchstring+'&limit=5')
+                .then(function(resp) {
+                    if (resp.ok) {
+                        resolve(resp.json());
+                    }
+                    // if response not ok
+                    reject('Network response was not ok.');
+                })
+                .catch(function(error) {
+                    alert('error: ' + error.message);
+                });
+        });
     };
 
      /*
-    @description: search wikipedia articles for a given keyword.
-    @param {string} searchstring - the keyword to search for in wikipedia.
-    @return array with two elements. The description and the link to a wikipedia article.
+    @description: adds a street view panorama to the info window.
+    @param {object} markter - the selected marker to add the info window to.
     */
-    this.getWikipediaArticle = function(searchstring) {
-        fetch("https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search="+searchstring+"&limit=5").then(function(resp) {
-            if (resp.ok) {
-                console.log(resp);
-                return resp.json();
-            }
-            // if response not ok
-            throw new Error('Network response was not ok.');
-        }).then(function(data) {
-            console.log(data);
-            var name = data[0];
-            var description = data[2][0] || 'Sorry, no Wikipedia description available';
-            var link = data[3][0] || 'Sorry, no Wikipedia article available';
-            viewModel.addWikiToInfoWindow(name, description, link);
-        }).catch(error => {
-            console.log('error: ' + error.message);
-        });
-    }
+    this.getStreetViewPanorama = function(marker) {
+        //get streetView data
+        var streetViewService = new google.maps.StreetViewService();
+        var radius = 50;
 
-    this.addWikiToInfoWindow = function(name, description, link) {
-        var wikiInfoContent = '<h4>'+name+'</h4>';
-        wikiInfoContent += '<div>' + description + '</div><hr>';
-        wikiInfoContent += '<a href="'+link+'">'+ link + '</a><hr>';
-        console.log(wikiInfoContent);
-        model.infoWindow.setContent(wikiInfoContent);
-    }
+        /* In case the status is OK, which means the pano was found,
+        compute the position of the streetview image, then calculate
+        the heading, then get a panorama from that and set the options.
+        */
+        function getStreetView(data, status){
+            if (status === google.maps.StreetViewStatus.OK) {
+                var nearStreetViewLocation = data.location.latLng;
+                var heading = google.maps.geometry.spherical.computeHeading(
+                    nearStreetViewLocation, marker.position);
+                var panoramaOptions = {
+                    position: nearStreetViewLocation,
+                    pov: {
+                        heading: heading,
+                        pitch: 20 //vertical angle
+                    }
+                };
+                var panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
+            } else {
+                // if status is not OK (failure)
+                model.infoWindow.setContent('<h2>' + marker.title + '</h2><span>No Street View Found, Sorry</span>');
+            }
+        }
+        /* Use streetview service to get the closest streetview image within
+         50 meters of the markers position 
+         */
+        streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+        
+        model.infoWindow.open(model.map, marker);
+    };
 
     /*
     @description: Show the info window an populate it with content.
     @param {object} marker - the map marker object that got clicked.
     */
     this.populateInfoWindow = function(marker) {
-        viewModel.getWikipediaArticle(marker.title);
         //check if there is allready an infoWindow instance available
         if (!model.infoWindow) {
             model.infoWindow = new google.maps.InfoWindow({maxWidth: 420});
@@ -552,44 +595,24 @@ var ViewModel = function() {
             model.infoWindow.addListener('closeclick', function() {
                 model.infoWindow.marker = null;
             });
-            var streetViewService = new google.maps.StreetViewService();
-            var radius = 50;
 
-            /* In case the status is OK, which means the pano was found,
-            compute the position of the streetview image, then calculate
-            the heading, then get a panorama from that and set the options.
-            */
-            function getStreetView(data, status) {
-                if (status === google.maps.StreetViewStatus.OK) {
-                    var nearStreetViewLocation = data.location.latLng;
-                    var heading = google.maps.geometry.spherical.computeHeading(
-                        nearStreetViewLocation, marker.position);
-                    var iwContent = model.infoWindow.getContent();
-                    iwContent += '</div><div id="pano"></div>';
-                    model.infoWindow.setContent(iwContent);
-                    var panoramaOptions = {
-                        position: nearStreetViewLocation,
-                        pov: {
-                            heading: heading,
-                            pitch: 20 //vertical angle
-                        }
-                    };
-                    var panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
-                } else {
-                    // if status is not OK (failure)
-                    model.infoWindow.setContent('<h2>' + marker.title + '</h2><span>No Street View Found, Sorry</span>');
-                }
-            }
-            /* Use streetview service to get the closest streetview image within
-             50 meters of the markers position 
-             */
-            streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-            
-            model.infoWindow.open(model.map, marker);
+            //get wikipedia data
+            this.getWikipediaArticle(marker.title)
+                .then(function(result) {
+                    var name = result[0];
+                    var description = result[2][0] || 'Sorry, no Wikipedia description available';
+                    var link = result[3][0] || 'Sorry, no Wikipedia article available';
+                    var wikiInfoContent = '<h4>'+name+'</h4>';
+                    wikiInfoContent += '<div>' + description + '</div><hr>';
+                    wikiInfoContent += '<a href="'+link+'" target="_blank">'+ link + '</a><hr><div id="pano"></div>';
+                    //var currentIwContent = model.infoWindow.getContent();
+                    model.infoWindow.setContent(wikiInfoContent);
+                    //add streetView data to the Info Window
+                    viewModel.getStreetViewPanorama(marker);
+                });
         }
     };
 };
-
 // activate knockout 
 var viewModel = new ViewModel();
 ko.applyBindings(viewModel);
