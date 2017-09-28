@@ -41,24 +41,39 @@
 		  <tbody data-bind="foreach: filteredMarkers">
 		    <tr>
           <td class="mdl-data-table__cell--non-numeric">
-            <input class="toggle" data-bind="checked: selected" type="checkbox">
+            <input class="toggle" data-bind="checked: selected, event: {change: $parent.displayMarkers}" type="checkbox">
           </td>
 		      <td class="mdl-data-table__cell--non-numeric" data-bind="text: name, event: {click: $parent.showPass}"></td>
 		    </tr>
 		  </tbody>
 		</table>
     <!-- ko if: selectedMarkers().length > 1 -->
-    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent show-route">
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent show-route" data-bind="event: {click: $root.displayDirections}">
       Show optimized route
     </button>
     <!-- /ko -->
+    <div class="mdl-card mdl-shadow--2dp route-details">
+      <div class="mdl-card__title">
+        <h2 class="mdl-card__title-text">Description:</h2>
+      </div>
+      <div class="mdl-card__supporting-text">
+        <span>Length: </span><span data-bind="text: routeLength"></span><br>
+        <span>Duration: </span><span data-bind="text: routeDuration"></span>
+      </div>
+      <div class="mdl-card__actions">
+        <button data-bind="event: {click: $root.clearRoute}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent clear-route">
+          Clear Route
+        </button>
+      </div>
+    </div>
+    
     </nav>
   </div>
   <main class="mdl-layout__content">
     <div id="map"></div>
   </main>
 </div>
-<script type='text/javascript' src='js/knockout-3.4.2.js' async></script>
+<script type='text/javascript' src='js/knockout-3.4.2.js'></script>
 <script type="text/javascript" src="js/app.js" async></script>
 <script>
 function initMap() {

@@ -28,7 +28,15 @@ main,
 	width: 100%;
 }
 
-.show-route {
+.show-route,
+.clear-route {
 	margin: 20px 10px;
+}
+
+.route-details {
+	background-color: white;
+	display: none;
+	width: inherit;
+
 }
 

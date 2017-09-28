@@ -291,7 +291,7 @@ var model = (function(){
         this.name = ko.observable(name);
         this.location = ko.observable(location);
         this.visibility = ko.observable(visibility);
-        this.selected = ko.observable(selected)
+        this.selected = ko.observable(selected);
     };
 
     // default marker
@@ -342,14 +342,14 @@ var ViewModel = function() {
     */
     this.getInfoWindow = function() {
         return model.infoWindow || null;
-    }
+    };
 
     /*
     @description: setter for the google.maps.InfoWindow obect in the model.
     */
     this.setInfoWindow = function(iwObject) {
         model.infoWindow = iwObject;
-    }
+    };
 
     /*
     @description: array for all the google.maps.Marker objects on the map.
@@ -412,14 +412,7 @@ var ViewModel = function() {
             this.filterMarkers(searchString.toLowerCase());
         }.bind(this));
 
-        var selectBoxes = document.getElementsByClassName('toggle');
-        console.log(selectBoxes);
-        for(var i = 0; i<selectBoxes.length; i++) {
-            selectBoxes[i].addEventListener('change', function(e){
-                viewModel.displayMarkers(map);
-            });
-        }
-        this.displayMarkers(map);
+        this.displayMarkers();
     };
 
     /*
@@ -441,9 +434,10 @@ var ViewModel = function() {
     @description: display all the filtered markers on the map
     @Param {object} map - The google.maps.Map object to display the markers on.
     */
-    this.displayMarkers = function(map) {
-        this.removeMapMarkers();
-        this.filteredMarkers().forEach(function(marker) {
+    this.displayMarkers = function() {
+        var map = model.map;
+        viewModel.removeMapMarkers();
+        viewModel.filteredMarkers().forEach(function(marker) {
             var mapMarker = new google.maps.Marker({
                 id: marker.id(),
                 position: marker.location(),
@@ -462,9 +456,9 @@ var ViewModel = function() {
             mapMarker.addListener('mouseout', function() {
                 this.setIcon(model.defaultMarkerIcon());
             });
-            this.mapMarkers.push(mapMarker);
+            viewModel.mapMarkers.push(mapMarker);
         }, this);
-        this.panToMarkers();  
+        viewModel.panToMarkers();  
     };
 
     /*
@@ -515,18 +509,16 @@ var ViewModel = function() {
                 }
             }
         });
-         if (this.filteredMarkers().length === 0) {
+        if (this.filteredMarkers().length === 0) {
             noResults.style.display = 'block';
-         }
+        }
         //display the info window if there is only one marker on the map.
         if (this.filteredMarkers().length === 1) {
-            //model.currentMarker = this.filteredMarkers()[0].id();
-            this.displayMarkers(model.map);
+            this.displayMarkers();
             this.bounceOnce(this.getMarkerById(this.filteredMarkers()[0].id()));
-            
         }
         else {
-            this.displayMarkers(model.map);
+            this.displayMarkers();
         }
     };
 
@@ -592,7 +584,7 @@ var ViewModel = function() {
         });
     };
 
-     /*
+    /*
     @description: adds a street view panorama to the info window.
     @param {object} markter - the selected marker to add the info window to.
     */
@@ -629,6 +621,62 @@ var ViewModel = function() {
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
         
         model.infoWindow.open(model.map, marker);
+    };
+
+    this.getWaypoints = function() {
+        var response = [];
+        if (this.selectedMarkers().length > 2) {
+            for(var i = 1; i <= this.selectedMarkers().length - 2; i++) {
+                response.push({location:this.selectedMarkers()[i].location(), stopover:false});
+            }
+        }
+        return response;
+    };
+
+    // This function is in response to the user clicking the  "show optimized route" button
+    // This will display the optimized cycling route between the selected passes on the map.
+    this.displayDirections = function() {
+        var selectedMarkersLength = this.selectedMarkers().length;
+        var selectedOrigin = this.selectedMarkers()[0].location();
+        var selectedDestination  = this.selectedMarkers()[selectedMarkersLength - 1].location();
+        var selectedWaypoints = this.getWaypoints();
+        var directionsService = new google.maps.DirectionsService;
+        directionsService.route({
+            origin: selectedOrigin, //Ausgangspunkt
+            destination: selectedDestination, //Ziel
+            waypoints: selectedWaypoints,
+            travelMode: 'DRIVING'
+        }, function(response, status){
+            if (status === google.maps.DirectionsStatus.OK) {
+                console.log(response);
+                // Save some metadata about the route to display on screen
+                viewModel.routeLength(response.routes[0].legs[0].distance.text);
+                viewModel.routeDuration(response.routes[0].legs[0].duration.text);
+                // Very nice -> DirectionsRenderer Class!!!
+                viewModel.directionsDisplay = new google.maps.DirectionsRenderer({
+                    map: model.map,
+                    directions: response,
+                    draggable: true,
+                    polylineOptions: {
+                        strokeColor: 'blue'
+                    },
+                    active: ko.observable(true)
+                });
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+            document.getElementsByClassName('route-details')[0].style.display = 'block';
+        });
+    };
+
+    this.routeLength = ko.observable(0);
+    this.routeDuration = ko.observable(0);
+
+    this.clearRoute = function() {
+        if (viewModel.directionsDisplay) {
+            viewModel.directionsDisplay.setMap(null);
+            document.getElementsByClassName('route-details')[0].style.display = 'none';
+        }
     };
 };
 // activate knockout 
@@ -690,7 +738,7 @@ var mapView = (function(){
 
     return {
         populateInfoWindow: populateInfoWindow
-    }
+    };
 })();
     
 
