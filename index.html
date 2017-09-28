@@ -34,15 +34,24 @@
 		    <span class="mdl-textfield__error">Letters and spaces only</span>
 		  </div>
 		</div>
+    <div class="no-result-found">Sorry, no results found</div>
 	</form>
     <nav class="mdl-navigation">
     	<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
 		  <tbody data-bind="foreach: filteredMarkers">
 		    <tr>
+          <td class="mdl-data-table__cell--non-numeric">
+            <input class="toggle" data-bind="checked: selected" type="checkbox">
+          </td>
 		      <td class="mdl-data-table__cell--non-numeric" data-bind="text: name, event: {click: $parent.showPass}"></td>
 		    </tr>
 		  </tbody>
 		</table>
+    <!-- ko if: selectedMarkers().length > 1 -->
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent show-route">
+      Show optimized route
+    </button>
+    <!-- /ko -->
     </nav>
   </div>
   <main class="mdl-layout__content">

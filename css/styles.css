@@ -14,6 +14,21 @@ main,
 	width: 400px;
 }
 
+#iw-content {
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.no-result-found {
+	color: red;
+	display: none;
+}
+
 .mdl-data-table {
 	width: 100%;
 }
+
+.show-route {
+	margin: 20px 10px;
+}
+

@@ -1,4 +1,8 @@
 /*globals ko, google, Promise */
+
+/*
+@description: Model Data
+*/
 var model = (function(){
     'use strict';
     // the greyscale style for the map
@@ -232,37 +236,43 @@ var model = (function(){
             id: 1,
             title: 'Grimsel',
             location: {lat: 46.561779, lng: 8.344811 },
-            visible: true
+            visible: true,
+            selected: false
         },
         {
             id: 2,
             title: 'Furka',
             location: {lat:46.572160, lng: 8.414309 },
-            visible: true
+            visible: true,
+            selected: false
         },
         {
             id: 3,
             title: 'Oberalp',
             location: {lat: 46.659079, lng: 8.671124},
-            visible: true
+            visible: true,
+            selected: false
         },
         {
             id: 4,
             title: 'Nufenen',
             location: {lat: 46.477448, lng: 8.386521},
-            visible: true
+            visible: true,
+            selected: false
         },
         {
             id: 5,
             title: 'Lukmanier',
             location: {lat: 46.5640536347374, lng: 8.801765441894531},
-            visible: true
+            visible: true,
+            selected: true
         },
         {
             id: 6,
             title: 'Susten',
-            location: {lat: 46.729505, lng: 8.447437},
-            visible: true
+            location: {lat: 46.729018, lng: 8.446040},
+            visible: true,
+            selected: true
         }
     ];
 
@@ -276,21 +286,22 @@ var model = (function(){
     var INITIAL_ZOOM = 11;
 
     // represent a single pass
-    var Pass = function(id, name, location, visibility) {
+    var Pass = function(id, name, location, visibility, selected) {
         this.id = ko.observable(id);
         this.name = ko.observable(name);
         this.location = ko.observable(location);
         this.visibility = ko.observable(visibility);
+        this.selected = ko.observable(selected)
     };
 
     // default marker
     var defaultMarkerIcon = function() {
-        return viewModel.makeMarkerIcon('2196f3');
+        return viewModel.makeMarkerIcon('7c4dff');
     };
 
     // highlighted marker
     var highlightedMarkerIcon = function() {
-        return viewModel.makeMarkerIcon('ff5722');
+        return viewModel.makeMarkerIcon('cddc39');
     };
 
     /*
@@ -326,6 +337,21 @@ var ViewModel = function() {
     'use strict';
 
     /*
+    @description: getter for the google.maps.InfoWindow obect.
+    @return: the info window object or null if it doesn't exist.
+    */
+    this.getInfoWindow = function() {
+        return model.infoWindow || null;
+    }
+
+    /*
+    @description: setter for the google.maps.InfoWindow obect in the model.
+    */
+    this.setInfoWindow = function(iwObject) {
+        model.infoWindow = iwObject;
+    }
+
+    /*
     @description: array for all the google.maps.Marker objects on the map.
     this array is neccessary to hide the markers when they don't match the filter.
     */
@@ -335,7 +361,7 @@ var ViewModel = function() {
     @description: array for all the list marker objects on the map.
     */
     this.markers = ko.observableArray(model.getPasses().map(function(pass) {
-        return new model.Pass(pass.id, pass.title, pass.location, pass.visible);
+        return new model.Pass(pass.id, pass.title, pass.location, pass.visible, pass.selected);
     }));
 
     /*
@@ -346,6 +372,16 @@ var ViewModel = function() {
             return marker.visibility() === true;
         });
     }, this);
+
+    /*
+    @description: computed array with all the selected list markers.
+    */
+    this.selectedMarkers = ko.computed(function() {
+        return ko.utils.arrayFilter(this.markers(), function(marker){
+            return marker.selected() === true;
+        });
+    }, this);
+
 
     /*
     @description: returns a map marker by id.
@@ -375,6 +411,14 @@ var ViewModel = function() {
             var searchString = e.target.value;
             this.filterMarkers(searchString.toLowerCase());
         }.bind(this));
+
+        var selectBoxes = document.getElementsByClassName('toggle');
+        console.log(selectBoxes);
+        for(var i = 0; i<selectBoxes.length; i++) {
+            selectBoxes[i].addEventListener('change', function(e){
+                viewModel.displayMarkers(map);
+            });
+        }
         this.displayMarkers(map);
     };
 
@@ -404,7 +448,7 @@ var ViewModel = function() {
                 id: marker.id(),
                 position: marker.location(),
                 title: marker.name(),
-                icon: model.defaultMarkerIcon(),
+                icon: marker.selected() ? model.highlightedMarkerIcon():model.defaultMarkerIcon(),
                 map: map
             });
             mapMarker.addListener('click', function() {
@@ -458,6 +502,8 @@ var ViewModel = function() {
     @Param {string} searchString - The string to filter the pass names against.
     */
     this.filterMarkers = function(searchString) {
+        var noResults = document.getElementsByClassName('no-result-found')[0];
+        noResults.style.display = 'none';
         this.markers().forEach(function(marker) {
             if (searchString.length === 0) {
                 marker.visibility(true);
@@ -469,6 +515,9 @@ var ViewModel = function() {
                 }
             }
         });
+         if (this.filteredMarkers().length === 0) {
+            noResults.style.display = 'block';
+         }
         //display the info window if there is only one marker on the map.
         if (this.filteredMarkers().length === 1) {
             //model.currentMarker = this.filteredMarkers()[0].id();
@@ -479,7 +528,6 @@ var ViewModel = function() {
         else {
             this.displayMarkers(model.map);
         }
-        
     };
 
     /*
@@ -495,13 +543,16 @@ var ViewModel = function() {
 
     this.showPass = function(listMarker) {
         var mapMarker = viewModel.getMarkerById(listMarker.id());
+        // if the clicked marker is equal to the current marker
+        // only show iw when it's not visible.
         if (model.currentMarker && (mapMarker.id === model.currentMarker.id)) {
-            console.log('markers equal');
             if(model.infoWindow.getMap() === null) {
-                model.infoWindow.setMap(model.map);
+                model.map.panTo(mapMarker.position);
+                viewModel.showInfoWindow();
             }
         } else {
             model.currentMarker = mapMarker;
+            model.map.panTo(model.currentMarker.position);
             viewModel.showInfoWindow();
         }
     };
@@ -511,9 +562,12 @@ var ViewModel = function() {
     @param {object} marker - the list marker object that got clicked. (not the map marker object).
     */
     this.showInfoWindow = function() {
+        if(model.infoWindow) {
+            model.infoWindow.setMap(null);
+        }
         viewModel.bounceOnce(model.currentMarker);
         window.setTimeout(function(){
-            viewModel.populateInfoWindow(model.currentMarker);
+            mapView.populateInfoWindow(model.currentMarker);
         }, 750);
     };
 
@@ -576,46 +630,70 @@ var ViewModel = function() {
         
         model.infoWindow.open(model.map, marker);
     };
+};
+// activate knockout 
+var viewModel = new ViewModel();
+ko.applyBindings(viewModel);
 
+
+/*
+@description: Functions to update view components like info windows etc.
+*/
+var mapView = (function(){
     /*
     @description: Show the info window an populate it with content.
     @param {object} marker - the map marker object that got clicked.
     */
     this.populateInfoWindow = function(marker) {
+        var iw = viewModel.getInfoWindow();
         //check if there is allready an infoWindow instance available
-        if (!model.infoWindow) {
-            model.infoWindow = new google.maps.InfoWindow({maxWidth: 420});
+        if (!iw) {
+            iw = new google.maps.InfoWindow({maxWidth: 420});
+            viewModel.setInfoWindow(iw);
         }
         //make sure the info window is not already opened on this marker
-        if (model.infoWindow.marker != marker) {
+        if (iw.marker !== marker) {
             // clear iw content to give the streetview time to load.
-            model.infoWindow.setContent('');
-            model.infoWindow.marker = marker;
+            iw.setContent('');
+            iw.marker = marker;
             // make sure the marker property is cleared if the infoWindow is closed
-            model.infoWindow.addListener('closeclick', function() {
-                model.infoWindow.marker = null;
+            iw.addListener('closeclick', function() {
+                iw.marker = null;
             });
 
             //get wikipedia data
-            this.getWikipediaArticle(marker.title)
+            viewModel.getWikipediaArticle(marker.title)
                 .then(function(result) {
                     var name = result[0];
                     var description = result[2][0] || 'Sorry, no Wikipedia description available';
                     var link = result[3][0] || 'Sorry, no Wikipedia article available';
-                    var wikiInfoContent = '<h4>'+name+'</h4>';
-                    wikiInfoContent += '<div>' + description + '</div><hr>';
-                    wikiInfoContent += '<a href="'+link+'" target="_blank">'+ link + '</a><hr><div id="pano"></div>';
-                    //var currentIwContent = model.infoWindow.getContent();
-                    model.infoWindow.setContent(wikiInfoContent);
+                    var iwCard = `<div class="mdl-card mdl-shadow--2dp">
+                                  <div class="mdl-card__title mdl-card--border">
+                                    <h2 class="mdl-card__title-text">${name}</h2>
+                                  </div>
+                                  <div class="mdl-card__media" id="pano">
+                                  </div>
+                                  <div class="mdl-card__supporting-text mdl-card--border">
+                                   ${description}
+                                  </div>
+                                  <div class="mdl-card__actions">
+                                    <a href="${link}" target="blank">More info...</a>
+                                  </div>
+                                </div>`;
+                    //var currentIwContent = iw.getContent();
+                    iw.setContent(iwCard);
                     //add streetView data to the Info Window
                     viewModel.getStreetViewPanorama(marker);
                 });
         }
     };
-};
-// activate knockout 
-var viewModel = new ViewModel();
-ko.applyBindings(viewModel);
+
+    return {
+        populateInfoWindow: populateInfoWindow
+    }
+})();
+    
+
 
 
 
