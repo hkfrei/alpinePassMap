@@ -89,6 +89,9 @@
 </div>
 <script type='text/javascript' src='js/knockout-3.4.2.js'></script>
 <script type="text/javascript" src="js/app.js" async></script>
+<!-- Polyfills for fetch and Promises -->
+<script type="text/javascript" src="node_modules/promise-polyfill/promise.min.js" async></script>
+<script type="text/javascript" src="node_modules/whatwg-fetch/fetch.js" async></script>
 <script>
 function initMap() {
     var map = new google.maps.Map(document.getElementById('map'), {
