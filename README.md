@@ -4,12 +4,11 @@ Plan your cycling route over various swiss mountain passes.
 
 ## Getting Started
 
-First things first. Of course you need a local copy of this project.
-You can get one by typing...
-```
-git clone https://github.com/hkfrei/
-```
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+All you have to do to get a local copy of the project is:
+```
+git clone git@github.com:hkfrei/alpinePassMap.git
+```
 
 ### Prerequisites
 
