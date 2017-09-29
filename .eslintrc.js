@@ -3,6 +3,7 @@ module.exports = {
         "browser": true
     },
     "extends": "eslint:recommended",
+    //"extends": "udacity",
     "parserOptions": {
         "ecmaVersion": 6,
         },

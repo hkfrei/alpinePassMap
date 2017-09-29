@@ -235,14 +235,14 @@ var model = (function(){
         {
             id: 1,
             title: 'Grimsel',
-            location: {lat: 46.561779, lng: 8.344811 },
+            location: {lat: 46.561779, lng: 8.344811},
             visible: true,
             selected: false
         },
         {
             id: 2,
             title: 'Furka',
-            location: {lat:46.572160, lng: 8.414309 },
+            location: {lat:46.572160, lng: 8.414309},
             visible: true,
             selected: false
         },
@@ -389,7 +389,7 @@ var ViewModel = function() {
     */
     this.getMarkerById = function(id) {
         for (var i = 0; i < this.mapMarkers.length; i++) {
-            var currentMarker = this.mapMarkers[i];        
+            var currentMarker = this.mapMarkers[i];
             if (currentMarker.id === id) {
                 return currentMarker;
             }
@@ -460,7 +460,7 @@ var ViewModel = function() {
         }, this);
         viewModel.panToMarkers();
         //this makes sure the switch has the right design (maybe it's a bug in material design lite)
-        componentHandler.upgradeDom();  
+        componentHandler.upgradeDom();
     };
 
     /*
@@ -518,8 +518,7 @@ var ViewModel = function() {
         if (this.filteredMarkers().length === 1) {
             this.displayMarkers();
             this.bounceOnce(this.getMarkerById(this.filteredMarkers()[0].id()));
-        }
-        else {
+        } else {
             this.displayMarkers();
         }
     };
@@ -621,7 +620,6 @@ var ViewModel = function() {
          50 meters of the markers position 
          */
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-        
         model.infoWindow.open(model.map, marker);
     };
 
@@ -704,11 +702,12 @@ ko.applyBindings(viewModel);
 @description: Functions to update view components like info windows etc.
 */
 var mapView = (function(){
+    'use strict';
     /*
     @description: Show the info window an populate it with content.
     @param {object} marker - the map marker object that got clicked.
     */
-    this.populateInfoWindow = function(marker) {
+    var populateInfoWindow = function(marker) {
         var iw = viewModel.getInfoWindow();
         //check if there is allready an infoWindow instance available
         if (!iw) {
@@ -751,13 +750,10 @@ var mapView = (function(){
                 });
         }
     };
-
     return {
-        populateInfoWindow: populateInfoWindow
+        populateInfoWindow:populateInfoWindow
     };
 })();
-    
-
 
 
 
