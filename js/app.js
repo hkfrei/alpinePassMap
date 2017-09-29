@@ -1,4 +1,4 @@
-/*globals ko, google, Promise */
+/*globals ko, google, Promise, componentHandler */
 
 /*
 @description: Model Data
@@ -265,14 +265,14 @@ var model = (function(){
             title: 'Lukmanier',
             location: {lat: 46.5640536347374, lng: 8.801765441894531},
             visible: true,
-            selected: true
+            selected: false
         },
         {
             id: 6,
             title: 'Susten',
             location: {lat: 46.729018, lng: 8.446040},
             visible: true,
-            selected: true
+            selected: false
         }
     ];
 
@@ -458,7 +458,9 @@ var ViewModel = function() {
             });
             viewModel.mapMarkers.push(mapMarker);
         }, this);
-        viewModel.panToMarkers();  
+        viewModel.panToMarkers();
+        //this makes sure the switch has the right design (maybe it's a bug in material design lite)
+        componentHandler.upgradeDom();  
     };
 
     /*
@@ -623,10 +625,19 @@ var ViewModel = function() {
         model.infoWindow.open(model.map, marker);
     };
 
+    this.getDestination = function(origin) {
+        var selectedMarkersLength = this.selectedMarkers().length;
+        if (this.selectedMarkers().length < 2) {
+            this.roundTrip(false);
+        }
+        return this.roundTrip() ? origin : this.selectedMarkers()[selectedMarkersLength - 1].location();
+    };
+
     this.getWaypoints = function() {
         var response = [];
         if (this.selectedMarkers().length > 2) {
-            for(var i = 1; i <= this.selectedMarkers().length - 2; i++) {
+            var waypointsCount = this.roundTrip() ? 1 : 2;
+            for(var i = 1; i <= this.selectedMarkers().length - waypointsCount; i++) {
                 response.push({location:this.selectedMarkers()[i].location(), stopover:false});
             }
         }
@@ -636,16 +647,16 @@ var ViewModel = function() {
     // This function is in response to the user clicking the  "show optimized route" button
     // This will display the optimized cycling route between the selected passes on the map.
     this.displayDirections = function() {
-        var selectedMarkersLength = this.selectedMarkers().length;
+        this.clearRoute();
         var selectedOrigin = this.selectedMarkers()[0].location();
-        var selectedDestination  = this.selectedMarkers()[selectedMarkersLength - 1].location();
+        var selectedDestination  = this.getDestination(selectedOrigin);
         var selectedWaypoints = this.getWaypoints();
         var directionsService = new google.maps.DirectionsService;
         directionsService.route({
             origin: selectedOrigin, //Ausgangspunkt
             destination: selectedDestination, //Ziel
             waypoints: selectedWaypoints,
-            travelMode: 'DRIVING'
+            travelMode: google.maps.TravelMode['BICYCLING']
         }, function(response, status){
             if (status === google.maps.DirectionsStatus.OK) {
                 console.log(response);
@@ -653,7 +664,7 @@ var ViewModel = function() {
                 viewModel.routeLength(response.routes[0].legs[0].distance.text);
                 viewModel.routeDuration(response.routes[0].legs[0].duration.text);
                 // Very nice -> DirectionsRenderer Class!!!
-                viewModel.directionsDisplay = new google.maps.DirectionsRenderer({
+                viewModel.directionsDisplay.push(new google.maps.DirectionsRenderer({
                     map: model.map,
                     directions: response,
                     draggable: true,
@@ -661,20 +672,25 @@ var ViewModel = function() {
                         strokeColor: 'blue'
                     },
                     active: ko.observable(true)
-                });
+                })
+                );
             } else {
                 window.alert('Directions request failed due to ' + status);
             }
             document.getElementsByClassName('route-details')[0].style.display = 'block';
         });
     };
-
+    this.directionsDisplay = [];
     this.routeLength = ko.observable(0);
     this.routeDuration = ko.observable(0);
+    this.roundTrip = ko.observable(false);
 
     this.clearRoute = function() {
         if (viewModel.directionsDisplay) {
-            viewModel.directionsDisplay.setMap(null);
+            viewModel.directionsDisplay.forEach(function(route) {
+                route.setMap(null);
+            });
+            viewModel.directionsDisplay = [];
             document.getElementsByClassName('route-details')[0].style.display = 'none';
         }
     };
