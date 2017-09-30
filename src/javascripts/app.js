@@ -1,5 +1,4 @@
 /*globals ko, google, Promise, componentHandler require */
-
 require('material.min.js');
 // Get the polyfills for fetch and promises because they are not yet in all browsers
 require('../../node_modules/promise-polyfill/promise.min.js');
@@ -7,6 +6,10 @@ require('../../node_modules/whatwg-fetch/fetch.js');
 import mapStyle from './modules/mapStyle';
 import appModel from './modules/model';
 
+/*
+@description Event listener when window object has finished loading.
+At this time we can load the google map and do other init stuff.
+*/
 window.onload = function() {
     //Do all the init work like adding all the markers and register event listeners
     viewModel.init();
@@ -19,15 +22,16 @@ var ViewModel = function() {
     'use strict';
 
     /*
-    @description: getter for the google.maps.InfoWindow obect.
-    @return: the info window object or null if it doesn't exist.
+    @description getter for the google.maps.InfoWindow obect.
+    @returns The info window object or null if it doesn't exist.
     */
     this.getInfoWindow = function() {
         return this.infoWindow || null;
     };
 
     /*
-    @description: setter for the google.maps.InfoWindow obect in the model.
+    @description setter for the google.maps.InfoWindow obect in the model.
+    @param {object} a google.maps.InfoWindow object.
     */
     this.setInfoWindow = function(iwObject) {
         this.infoWindow = iwObject;
@@ -40,14 +44,14 @@ var ViewModel = function() {
     this.mapMarkers = [];
 
     /*
-    @description: array for all the list marker objects on the map.
+    @description array for all the list marker objects on the map.
     */
     this.markers = ko.observableArray(appModel.getPasses().map(function(pass) {
         return new appModel.Pass(pass.id, pass.title, pass.location, pass.visible, pass.selected);
     }));
 
     /*
-    @description: computed array with all the visible list markers.
+    @description computed array with all the visible list markers.
     */
     this.filteredMarkers = ko.computed(function() {
         return ko.utils.arrayFilter(this.markers(), function(marker){
@@ -56,7 +60,7 @@ var ViewModel = function() {
     }, this);
 
     /*
-    @description: computed array with all the selected list markers.
+    @description computed array with all the selected list markers.
     */
     this.selectedMarkers = ko.computed(function() {
         return ko.utils.arrayFilter(this.markers(), function(marker){
@@ -64,9 +68,8 @@ var ViewModel = function() {
         });
     }, this);
 
-
     /*
-    @description: returns a map marker by id.
+    @description returns a map marker by id.
     @Param {number} id - the id property of the marker who needs to be returned.
     */
     this.getMarkerById = function(id) {
@@ -79,9 +82,8 @@ var ViewModel = function() {
     };
 
     /*
-    @description: initialize the filterable passlist and all
-    the map markers. Add the neccessary Eevent listener to the filter input.
-    @Param {object} map - The google.maps.Map object to display the markers on.
+    @description initialize the map, the filterable passlist and all
+    the map markers. Add the neccessary Event listener to the filter input.
     */
     this.init = function() {
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -106,8 +108,7 @@ var ViewModel = function() {
     };
 
     /*
-    @description: display all the filtered markers on the map
-    @Param {object} map - The google.maps.Map object to display the markers on.
+    @description display all the filtered markers on the map
     */
     this.displayMarkers = function() {
         viewModel.removeMapMarkers();
@@ -133,18 +134,18 @@ var ViewModel = function() {
             viewModel.mapMarkers.push(mapMarker);
         }, this);
         viewModel.panToMarkers();
-        //this makes sure the switch has the right design (maybe it's a bug in material design lite)
+        //this makes sure the roundtrip switch has the right design (maybe it's a bug in material design lite)
         componentHandler.upgradeDom();
     };
 
     /*
-    @description: make a marker bouncing but only once.
+    @description: make a marker bouncing, but only once.
     @Param {object} marker - a google.maps.Marker object.
     */
     this.bounceOnce = function(marker) {
         marker.setIcon(appModel.highlightedMarkerIcon());
         marker.setAnimation(google.maps.Animation.BOUNCE);
-        //Bounce only once
+        //Bouncing only once takes 700ms
         window.setTimeout(function(){
             marker.setAnimation(null);
             marker.setIcon(appModel.defaultMarkerIcon());
@@ -152,7 +153,7 @@ var ViewModel = function() {
     };
 
     /*
-    @description: If only one marker is visible, center the map on it
+    @description If only one marker is visible, center the map on it
     otherwise set center an zoom to the initial values.
     */
     this.panToMarkers = function() {
@@ -168,7 +169,7 @@ var ViewModel = function() {
     };
 
     /*
-    @description: filter the markers based on a search string from the input field.
+    @description filter the markers based on a search string from the input field.
     @Param {string} searchString - The string to filter the pass names against.
     */
     this.filterMarkers = function(searchString) {
@@ -198,7 +199,7 @@ var ViewModel = function() {
     };
 
     /*
-    @description: hides every marker on the map.
+    @description hides every marker on the map.
     */
     this.removeMapMarkers = function() {
         this.mapMarkers.forEach(function(marker){
@@ -208,6 +209,10 @@ var ViewModel = function() {
         this.mapMarkers = [];
     };
 
+    /*
+    @description Displays an info window when a list element on the left get's clicked.
+    @param {object} listMarker - the list marker object that got clicked. (not the map marker object).
+    */
     this.showPass = function(listMarker) {
         var mapMarker = viewModel.getMarkerById(listMarker.id());
         // if the clicked marker is equal to the current marker
@@ -225,8 +230,7 @@ var ViewModel = function() {
     };
 
     /*
-    @description: show the right info window when a list item gets clicked
-    @param {object} marker - the list marker object that got clicked. (not the map marker object).
+    @description show the right info window when a list item gets clicked
     */
     this.showInfoWindow = function() {
         var iw = viewModel.getInfoWindow();
@@ -240,9 +244,9 @@ var ViewModel = function() {
     };
 
     /*
-    @description: search wikipedia articles for a given keyword.
+    @description search wikipedia articles for a given keyword.
     @param {string} searchstring - the keyword to search for in wikipedia.
-    @return promise with the json response or an error message
+    @returns promise with the json response or an error message
     */
     this.getWikipediaArticle = function(searchstring) {
         return new Promise(function(resolve, reject) {
@@ -261,7 +265,7 @@ var ViewModel = function() {
     };
 
     /*
-    @description: adds a street view panorama to the info window.
+    @description adds a street view panorama to the info window.
     @param {object} markter - the selected marker to add the info window to.
     */
     this.getStreetViewPanorama = function(marker) {
@@ -290,20 +294,22 @@ var ViewModel = function() {
             } else {
                 // if status is not OK (failure)
                 var streetViewFailureContent = iw.getContent();
+                // remove the id=pano. No street view should be displayed
                 streetViewFailureContent = streetViewFailureContent.replace(' id="pano"','');
                 streetViewFailureContent += '<h6>No Street View Found, Sorry...</h6>';
                 iw.setContent(streetViewFailureContent);
             }
         }
-        /* Use streetview service to get the closest streetview image within
-         50 meters of the markers position 
-         */
+        /* 
+        Use streetview service to get the closest streetview image within
+        50 meters of the markers position 
+        */
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
         iw.open(this.map, marker);
     };
 
     /*
-    @description: Show the info window an populate it with content.
+    @description Show the info window an populate it with wikipedia and streetview content.
     @param {object} marker - the map marker object that got clicked.
     */
     this.populateInfoWindow = function(marker) {
@@ -342,7 +348,6 @@ var ViewModel = function() {
                                     <a href="${link}" target="blank">More info...</a>
                                   </div>
                                 </div>`;
-                    //var currentIwContent = iw.getContent();
                     iw.setContent(iwCard);
                     //add streetView data to the Info Window
                     viewModel.getStreetViewPanorama(marker);
@@ -350,6 +355,10 @@ var ViewModel = function() {
         }
     };
 
+    /*
+    @description Calculate the destination lat/lng accrding to roundtrip boolean.
+    @returns {object} The lat/lng if the destination.
+    */
     this.getDestination = function(origin) {
         var selectedMarkersLength = this.selectedMarkers().length;
         if (this.selectedMarkers().length < 3) {
@@ -358,6 +367,10 @@ var ViewModel = function() {
         return this.roundTrip() ? origin : this.selectedMarkers()[selectedMarkersLength - 1].location();
     };
 
+    /*
+    @description Calculate the waypoints due to the selected markers.
+    @returns {array} All the waypoints as objects with a location and stopover property.
+    */
     this.getWaypoints = function() {
         var response = [];
         if (this.selectedMarkers().length > 2) {
@@ -369,8 +382,10 @@ var ViewModel = function() {
         return response;
     };
 
-    // This function is in response to the user clicking the  "show optimized route" button
-    // This will display the optimized cycling route between the selected passes on the map.
+    /*
+    @description This function is in response to the user clicking the  "show optimized route" button
+    This will display the optimized cycling route between the selected passes on the map.
+    */
     this.displayDirections = function() {
         this.clearRoute();
         var selectedOrigin = this.selectedMarkers()[0].location();
@@ -389,7 +404,7 @@ var ViewModel = function() {
                 viewModel.routeLength(response.routes[0].legs[0].distance.text);
                 viewModel.routeDuration(response.routes[0].legs[0].duration.text);
                 // Very nice -> DirectionsRenderer Class!!!
-                viewModel.directionsDisplay.push(new google.maps.DirectionsRenderer({
+                viewModel.directionsDisplays.push(new google.maps.DirectionsRenderer({
                     map: viewModel.map,
                     directions: response,
                     draggable: true,
@@ -405,17 +420,36 @@ var ViewModel = function() {
             document.getElementsByClassName('route-details')[0].style.display = 'block';
         });
     };
-    this.directionsDisplay = [];
+    
+    /*
+    @description Array of direction Display Objects.
+    */
+    this.directionsDisplays = [];
+
+    /*
+    @description The length in km of the cycling tour.
+    */
     this.routeLength = ko.observable(0);
+
+    /*
+    @description The time the cycling tour takes.
+    */
     this.routeDuration = ko.observable(0);
+
+    /*
+    @description Boolean if bike route has to be calculated as roundtrip.
+    */
     this.roundTrip = ko.observable(false);
 
+    /*
+    @description Remove all cycling routes from the map.
+    */
     this.clearRoute = function() {
-        if (viewModel.directionsDisplay) {
-            viewModel.directionsDisplay.forEach(function(route) {
+        if (viewModel.directionsDisplays) {
+            viewModel.directionsDisplays.forEach(function(route) {
                 route.setMap(null);
             });
-            viewModel.directionsDisplay = [];
+            viewModel.directionsDisplays = [];
             document.getElementsByClassName('route-details')[0].style.display = 'none';
         }
     };

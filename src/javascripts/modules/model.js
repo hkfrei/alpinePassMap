@@ -4,7 +4,6 @@
 */
 export default (function(){
     'use strict';
-    
     // the pass Objects to create the list and the markers from.
     const passes = [
         {
