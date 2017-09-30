@@ -1,5 +1,9 @@
 /*globals ko, google, Promise, componentHandler require */
+
 require('material.min.js');
+// Get the polyfills for fetch and promises because they are not yet in all browsers
+require('../../node_modules/promise-polyfill/promise.min.js');
+require('../../node_modules/whatwg-fetch/fetch.js');
 import mapStyle from './modules/mapStyle';
 import appModel from './modules/model';
 
@@ -285,7 +289,10 @@ var ViewModel = function() {
                 new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
             } else {
                 // if status is not OK (failure)
-                iw.setContent('<h2>' + marker.title + '</h2><span>No Street View Found, Sorry</span>');
+                var streetViewFailureContent = iw.getContent();
+                streetViewFailureContent = streetViewFailureContent.replace(' id="pano"','');
+                streetViewFailureContent += '<h6>No Street View Found, Sorry...</h6>';
+                iw.setContent(streetViewFailureContent);
             }
         }
         /* Use streetview service to get the closest streetview image within
@@ -345,7 +352,7 @@ var ViewModel = function() {
 
     this.getDestination = function(origin) {
         var selectedMarkersLength = this.selectedMarkers().length;
-        if (this.selectedMarkers().length < 2) {
+        if (this.selectedMarkers().length < 3) {
             this.roundTrip(false);
         }
         return this.roundTrip() ? origin : this.selectedMarkers()[selectedMarkersLength - 1].location();

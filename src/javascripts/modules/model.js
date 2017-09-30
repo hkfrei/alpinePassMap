@@ -9,43 +9,64 @@ export default (function(){
     const passes = [
         {
             id: 1,
-            title: 'Grimsel',
-            location: {lat: 46.561779, lng: 8.344811},
+            title: 'Grimselpass',
+            location: {lat: 46.561294739210176, lng: 8.337442874908447},
             visible: true,
             selected: false
         },
         {
             id: 2,
-            title: 'Furka',
-            location: {lat:46.572160, lng: 8.414309},
+            title: 'Furkapass',
+            location: {lat:46.572794128573726, lng: 8.41529130935669},
             visible: true,
             selected: false
         },
         {
             id: 3,
-            title: 'Oberalp',
+            title: 'Oberalppass',
             location: {lat: 46.659079, lng: 8.671124},
             visible: true,
             selected: false
         },
         {
             id: 4,
-            title: 'Nufenen',
-            location: {lat: 46.477448, lng: 8.386521},
+            title: 'Nufenenpass',
+            location: {lat: 46.4771475218557, lng: 8.387911319732666},
             visible: true,
             selected: false
         },
         {
             id: 5,
-            title: 'Lukmanier',
+            title: 'Lukmanierpass',
             location: {lat: 46.5640536347374, lng: 8.801765441894531},
             visible: true,
             selected: false
         },
         {
             id: 6,
-            title: 'Susten',
+            title: 'Sustenpass',
             location: {lat: 46.729018, lng: 8.446040},
+            visible: true,
+            selected: false
+        },
+        {
+            id: 7,
+            title: 'Gotthardpass',
+            location: {lat: 46.555481419906314, lng: 8.56656789779663},
+            visible: true,
+            selected: false
+        },
+        {
+            id: 8,
+            title: 'Klausenpass',
+            location: {lat: 46.86808415801669, lng: 8.854765892028809},
+            visible: true,
+            selected: false
+        },
+        {
+            id: 9,
+            title: 'San Bernardino Pass',
+            location: {lat: 46.49576297064152, lng: 9.170665740966797},
             visible: true,
             selected: false
         }
@@ -61,10 +82,10 @@ export default (function(){
     };
 
     // initial center coordinates of the map
-    const INITIAL_CENTER = {lat:46.6203586, lng: 8.5441755};
+    const INITIAL_CENTER = {lat:46.632464724627475, lng: 8.71490478515625};
 
     // initial zoom level of the map
-    const INITIAL_ZOOM = 11;
+    const INITIAL_ZOOM = 9;
 
     /*
     @description: this function takes in a color, and then creates a new marker
