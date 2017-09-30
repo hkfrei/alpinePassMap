@@ -2,7 +2,7 @@
   "name": "neighbourhoodmap",
   "version": "1.0.0",
   "description": "A map of swiss alpine passes who are great for cycling",
-  "main": ".eslintrc.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./**/app.js"
@@ -14,13 +14,11 @@
     "api",
     "neighbourhood"
   ],
-  "repository" :
-  { "type" : "git",
-    "url" : "https://github.com:hkfrei/alpinePassMap.git"
-  },
+  "repository": "https://github.com:hkfrei/alpinePassMap.git",
   "author": "Hanskaspar Frei",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
+    "blendid": "^4.2.0",
     "promise-polyfill": "6.0.2",
     "whatwg-fetch": "^2.0.3"
   },
@@ -28,5 +26,6 @@
     "eslint": "^4.7.2",
     "eslint-config-udacity": "^2.0.2",
     "eslint-plugin-import": "^2.7.0"
-  }
+  },
+  "private": false
 }

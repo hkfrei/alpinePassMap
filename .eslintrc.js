@@ -6,6 +6,7 @@ module.exports = {
     //"extends": "udacity",
     "parserOptions": {
         "ecmaVersion": 6,
+        "sourceType": "module"
         },
     "rules": {
         "indent": [
