@@ -4,7 +4,7 @@
 */
 export default (function(){
     'use strict';
-    // the pass Objects to create the list and the markers from.
+    // the pass Objects to create the list and the markers.
     const passes = [
         {
             id: 1,
@@ -64,7 +64,7 @@ export default (function(){
         },
         {
             id: 9,
-            title: 'San Bernardino Pass',
+            title: 'San Bernardinopass',
             location: {lat: 46.49576297064152, lng: 9.170665740966797},
             visible: true,
             selected: false

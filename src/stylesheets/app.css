@@ -19,13 +19,22 @@ main,
 	overflow-y: auto;
 }
 
+.mdl-layout__drawer {
+	overflow-x: hidden;
+}
+
 .no-result-found {
 	color: red;
 	display: none;
 }
 
 .mdl-data-table {
-	width: 100%;
+	margin: 0 auto;
+	width: 95%;
+}
+
+.pass-text {
+	font-size: 12px;
 }
 
 .show-route,
@@ -34,9 +43,9 @@ main,
 }
 
 .drawer-card {
-	margin-top: 10px;
 	background-color: white;
-	width: inherit;
+	margin: 10px auto;
+	width: 97%;
 }
 
 .route-details {

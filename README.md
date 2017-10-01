@@ -33,11 +33,14 @@ yarn run blendid
 This is where the magic happens. The perfect front-end workflow. This runs the development task, which starts compiling, watching, and live updating all our files as we change them. Browsersync will start a server on port 3000, or do whatever you've configured it to do. You'll be able to see live changes in all connected browsers. Don't forget about the additional Browsersync UI tools available on port 3001!
 
 ### Plan a route
-On the left of the page, you can see all the available passes. If you switch more two or more toggles to on, a dialog appears to calculate the cycling route.
+On the left of the page, you can see all the available passes. If you switch more two or more toggles to on, a dialog appears to calculate the cycling route...
 ![site overview](src/images/app_overview.jpeg "Overview of the site")
 
-If you want to get some more information about a pass, klick on a marker.
+If you want to get some more information about a pass, klick on a marker...
 ![info window](src/images/info_window.jpeg "The info-window")
+
+To calculate a route, click the "Show Route" button...
+![info window](src/images/route_calculation.jpeg "The route")
 
 ## Running the tests
 
