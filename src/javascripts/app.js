@@ -95,9 +95,6 @@ var ViewModel = function() {
             styles: mapStyle
         });
         this.map = map;
-        this.map.addListener('click', function(e) {
-            console.log(e.latLng.lat() + '/' + e.latLng.lng());
-        });
         var filter = document.getElementById('pass-filter');
         filter.addEventListener('input', function(e){
             var searchString = e.target.value;
@@ -420,7 +417,7 @@ var ViewModel = function() {
             document.getElementsByClassName('route-details')[0].style.display = 'block';
         });
     };
-    
+
     /*
     @description Array of direction Display Objects.
     */

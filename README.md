@@ -36,31 +36,31 @@ This is where the magic happens. The perfect front-end workflow. This runs the d
 On the left of the page, you can see all the available passes. If you switch more two or more toggles to on, a dialog appears to calculate the cycling route...
 ![site overview](src/images/app_overview.jpeg "Overview of the site")
 
+To calculate a route, click the "SHOW ROUTE" button...
+![info window](src/images/route_calculation.jpeg "The route")
+
 If you want to get some more information about a pass, klick on a marker...
 ![info window](src/images/info_window.jpeg "The info-window")
-
-To calculate a route, click the "Show Route" button...
-![info window](src/images/route_calculation.jpeg "The route")
 
 ## Running the tests
 
 Explain how to run the automated tests for this system
 
-### Break down into end to end tests
+### end to end tests
 
-Explain what these tests test and why
-
-```
-Give an example
-```
+Currently there are no end to end tests defined.
 
 ### And coding style tests
 
-Explain what these tests test and why
+This project uses eslint to test coding style. You can see the current configuration in *.eslintrc.js*.
+What's special about the current config, is that the UDACITY style checker is installed. Currently *app.js* and all the files
+in the *modules* folder are beeing linted.
+You can run tests with...
 
 ```
-Give an example
+yarn run lint
 ```
+Don't forget, you need to be in the *root* directory to run this command successfully.
 
 ## Deployment
 
@@ -73,7 +73,7 @@ After that, you can copy the contents of the public folder to your webserver of 
 
 ## Built With
 
-* [BLENDID](https://github.com/vigetlabs/blendid/blob/master/README.md) - The build tools used
+* [BLENDID](https://github.com/vigetlabs/blendid/blob/master/README.md) - The awesome build tools
 * [YARN](https://yarnpkg.com/) - Package Management
 * [Google Maps API](https://developers.google.com/maps/documentation/javascript/) - Mapping library
 
@@ -83,13 +83,13 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/hkfrei/alpinePassMap/tags). 
 
 ## Authors
 
-* **Hanskaspar Frei** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Hanskaspar Frei**
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/hkfrei/alpinePassMap/contributors) who participated in this project.
 
 ## License
 
@@ -98,4 +98,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 * The awesome BLENDID task and build tools. 
-* Vince Garcia my cycling buddy who drove many of those passes with me;-)
+* Vince Garcia, my cycling buddy who drove many of those passes with me;-)
