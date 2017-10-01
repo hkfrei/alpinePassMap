@@ -1,8 +1,8 @@
 /*globals ko, google, Promise, componentHandler require */
 require('material.min.js');
 // Get the polyfills for fetch and promises because they are not yet in all browsers
-require('../../node_modules/promise-polyfill/promise.min.js');
 require('../../node_modules/whatwg-fetch/fetch.js');
+import Promise from 'promise-polyfill';
 import mapStyle from './modules/mapStyle';
 import appModel from './modules/model';
 
@@ -11,6 +11,19 @@ import appModel from './modules/model';
 At this time we can load the google map and do other init stuff.
 */
 window.onload = function() {
+    // check for network problems
+    if (typeof window.google === 'undefined') {
+        var message = 'It seems, there are some serious network problems. ';
+        message += 'The App couldn\'t be loaded properly. ';
+        message += 'We are very sorry an hope you try again later.';
+        alert(message);
+        return;
+    }
+    //activate the promise polyfill if necessary
+    if (!window.Promise) {
+        window.Promise = Promise;
+    }
+
     //Do all the init work like adding all the markers and register event listeners
     viewModel.init();
 };
@@ -44,14 +57,14 @@ var ViewModel = function() {
     this.mapMarkers = [];
 
     /*
-    @description array for all the list marker objects on the map.
+    @description array for all the list elements (filterable list on the left).
     */
     this.markers = ko.observableArray(appModel.getPasses().map(function(pass) {
         return new appModel.Pass(pass.id, pass.title, pass.location, pass.visible, pass.selected);
     }));
 
     /*
-    @description computed array with all the visible list markers.
+    @description computed array with all the visible list elements.
     */
     this.filteredMarkers = ko.computed(function() {
         return ko.utils.arrayFilter(this.markers(), function(marker){
@@ -60,7 +73,7 @@ var ViewModel = function() {
     }, this);
 
     /*
-    @description computed array with all the selected list markers.
+    @description computed array with all the selected list elements.
     */
     this.selectedMarkers = ko.computed(function() {
         return ko.utils.arrayFilter(this.markers(), function(marker){
@@ -133,6 +146,8 @@ var ViewModel = function() {
         viewModel.panToMarkers();
         //this makes sure the roundtrip switch has the right design (maybe it's a bug in material design lite)
         componentHandler.upgradeDom();
+        //Very important for the click handler to work properly across browsers
+        return true;
     };
 
     /*
@@ -253,10 +268,10 @@ var ViewModel = function() {
                         resolve(resp.json());
                     }
                     // if response not ok
-                    reject('Network response was not ok.');
+                    reject('Network response was not ok. No Wikipedia Info is available');
                 })
-                .catch(function(error) {
-                    alert('error: ' + error.message);
+                .catch(function() {
+                    viewModel.populateInfoWindow(viewModel.currentMarker, true);
                 });
         });
     };
@@ -308,8 +323,11 @@ var ViewModel = function() {
     /*
     @description Show the info window an populate it with wikipedia and streetview content.
     @param {object} marker - the map marker object that got clicked.
+    @param {boolean} wikifail - a boolean value to indicate that it was not possible to load wikipedia infos.
     */
-    this.populateInfoWindow = function(marker) {
+    this.populateInfoWindow = function(marker, wikifail) {
+        //wikifail defaults to false
+        wikifail = wikifail === true ? true : false;
         var iw = viewModel.getInfoWindow();
         //check if there is allready an infoWindow instance available
         if (!iw) {
@@ -326,30 +344,39 @@ var ViewModel = function() {
                 iw.marker = null;
             });
 
-            //get wikipedia data
-            viewModel.getWikipediaArticle(marker.title)
-                .then(function(result) {
-                    var name = result[0];
-                    var description = result[2][0] || 'Sorry, no Wikipedia description available';
-                    var link = result[3][0] || 'Sorry, no Wikipedia article available';
-                    var iwCard = `<div class="mdl-card mdl-shadow--2dp">
-                                  <div class="mdl-card__title mdl-card--border">
-                                    <h2 class="mdl-card__title-text">${name}</h2>
-                                  </div>
-                                  <div class="mdl-card__media" id="pano">
-                                  </div>
-                                  <div class="mdl-card__supporting-text mdl-card--border">
-                                   ${description}
-                                  </div>
-                                  <div class="mdl-card__actions">
-                                    <a href="${link}" target="blank">More info...</a>
-                                  </div>
-                                </div>`;
-                    iw.setContent(iwCard);
-                    //add streetView data to the Info Window
-                    viewModel.getStreetViewPanorama(marker);
-                });
+            //get wikipedia data if possible
+            if(!wikifail) {
+                viewModel.getWikipediaArticle(marker.title)
+                    .then(function(result) {
+                        var name = result[0];
+                        var description = result[2][0] || 'Sorry, no Wikipedia description available';
+                        var link = result[3][0] || 'Sorry, no Wikipedia article available';
+                        iw.setContent(viewModel.getIwContent(name, description, link));
+                        //add streetView data to the Info Window
+                        viewModel.getStreetViewPanorama(marker);
+                    });
+            } else {
+                // error while loading wikipedia
+                var name = appModel.currentMarker.title;
+                var description = 'Sorry, no description available. There was an error while loading wikipedia info';
+                var link = false;
+                iw.setContent(viewModel.getIwContent(name, description, link));
+                viewModel.getStreetViewPanorama(appModel.currentMarker);
+            }
         }
+    };
+
+    this.getIwContent = function(name, description, link) {
+        var iwCard = `<div class="mdl-card mdl-shadow--2dp"><div class="mdl-card__title mdl-card--border">
+                        <h2 class="mdl-card__title-text">${name}</h2></div>
+                        <div class="mdl-card__media" id="pano"></div>
+                        <div class="mdl-card__supporting-text mdl-card--border">${description}</div>`;
+        if (link) {
+            iwCard += `<div class="mdl-card__actions"><a href="${link}" target="blank">More info...</a></div></div>`;
+        } else {
+            iwCard += '<div class="mdl-card__actions">Sorry No Link to Wikipedia available</div></div>';
+        }
+        return iwCard;
     };
 
     /*
