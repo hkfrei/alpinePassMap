@@ -95,5 +95,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-* The awesome BLENDID task and build tools. With that I finally found a good way to organize my code in modules.
+* The awesome [BLENDID](https://github.com/vigetlabs/blendid/blob/master/README.md) task and build tools. With that, I finally found a good way to organize my code in modules.
 * Vince Garcia, my cycling buddy who drove many of those passes with me;-)
