@@ -4,21 +4,18 @@ Plan your cycling route over various swiss mountain passes.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-See deployment for notes on how to deploy the project on a live system.
-
 You can get a local copy of the project by running this command on your console:
 ```
 git clone git@github.com:hkfrei/alpinePassMap.git
 ```
-After that you should enter the newly created directory by typing
+After that, you should enter the newly created directory by typing
 ```zsh
 cd alpinePassMap
 ```
 
 ### Prerequisites
 
-The project needs the package manager [Yarn](https://yarnpkg.com/). Please install it from [here](https://yarnpkg.com/en/docs/install)
+The project needs the package manager [Yarn](https://yarnpkg.com/). You can install it from [here](https://yarnpkg.com/en/docs/install)
 
 
 ### Installing
@@ -35,24 +32,12 @@ yarn run blendid
 
 This is where the magic happens. The perfect front-end workflow. This runs the development task, which starts compiling, watching, and live updating all our files as we change them. Browsersync will start a server on port 3000, or do whatever you've configured it to do. You'll be able to see live changes in all connected browsers. Don't forget about the additional Browsersync UI tools available on port 3001!
 
+### Plan a route
+On the left of the page, you can see all the available passes. If you switch more two or more toggles to on, a dialog appears to calculate the cycling route.
+![site overview](src/images/app_overview.jpeg "Overview of the site")
 
-
-
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
+If you want to get some more information about a pass, klick on a marker.
+![info window](src/images/info_window.jpeg "The info-window")
 
 ## Running the tests
 

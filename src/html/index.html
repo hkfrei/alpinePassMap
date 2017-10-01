@@ -40,7 +40,10 @@
 		  <tbody data-bind="foreach: filteredMarkers">
 		    <tr>
           <td class="mdl-data-table__cell--non-numeric">
-            <input class="toggle" data-bind="checked: selected, event: {change: $parent.displayMarkers}" type="checkbox">
+            <label class="mdl-switch mdl-js-switch">
+              <input type="checkbox" class="mdl-switch__input toggle" data-bind="checked: selected, event: {change: $parent.displayMarkers}">
+              <span class="mdl-switch__label"></span>
+            </label>
           </td>
 		      <td class="mdl-data-table__cell--non-numeric" data-bind="text: name, event: {click: $parent.showPass}"></td>
 		    </tr>
