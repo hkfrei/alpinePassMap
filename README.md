@@ -1,6 +1,6 @@
 # PASS CYCLING PLANER
 
-Plan your cycling route over various swiss mountain passes.
+Plan your cycling route over various swiss mountain passes. 🚵
 
 ## Getting Started
 
