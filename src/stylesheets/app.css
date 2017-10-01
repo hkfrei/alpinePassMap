@@ -52,3 +52,9 @@ main,
 	display: none;
 }
 
+.details-title {
+	font-weight: bold;
+	margin: 0 0 2px;
+
+}
+

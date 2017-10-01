@@ -1,4 +1,4 @@
-# Swiss mountain pass map
+# PASS CYCLING PLANER
 
 Plan your cycling route over various swiss mountain passes.
 
@@ -8,10 +8,9 @@ You can get a local copy of the project by running this command on your console:
 ```
 git clone git@github.com:hkfrei/alpinePassMap.git
 ```
-After that, you should enter the newly created directory by typing
-```zsh
-cd alpinePassMap
-```
+After that, you should enter the newly created directory by typing...
+`cd theNewDir` where 'theNewDir' is the directory you cloned the repo in.
+
 
 ### Prerequisites
 
@@ -33,7 +32,7 @@ yarn run blendid
 This is where the magic happens. The perfect front-end workflow. This runs the development task, which starts compiling, watching, and live updating all our files as we change them. Browsersync will start a server on port 3000, or do whatever you've configured it to do. You'll be able to see live changes in all connected browsers. Don't forget about the additional Browsersync UI tools available on port 3001!
 
 ### Plan a route
-On the left of the page, you can see all the available passes. If you switch more two or more toggles to on, a dialog appears to calculate the cycling route...
+On the left of the page, you can see all the available mountain passes. If you switch two or more toggles to on, a dialog appears to calculate the cycling route...
 ![site overview](src/images/app_overview.jpeg "Overview of the site")
 
 To calculate a route, click the "SHOW ROUTE" button...
@@ -44,13 +43,11 @@ If you want to get some more information about a pass, klick on a marker...
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
 ### end to end tests
 
 Currently there are no end to end tests defined.
 
-### And coding style tests
+### coding style tests
 
 This project uses eslint to test coding style. You can see the current configuration in *.eslintrc.js*.
 What's special about the current config, is that the UDACITY style checker is installed. Currently *app.js* and all the files
@@ -79,6 +76,7 @@ After that, you can copy the contents of the public folder to your webserver of 
 
 ## Contributing
 
+Of course, this project can be extended. One cool thing, would be a elevation profile for the routes.
 Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
@@ -97,5 +95,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-* The awesome BLENDID task and build tools. 
+* The awesome BLENDID task and build tools. With that I finally found a good way to organize my code in modules.
 * Vince Garcia, my cycling buddy who drove many of those passes with me;-)

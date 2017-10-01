@@ -1,97 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Beautiful Swiss cycling Passes</title>
-    <link rel="stylesheet" href="stylesheets/base/material.min.css">
-	  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="stylesheets/app.css">
-</head>
+  <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Beautiful Swiss cycling Passes</title>
+      <link rel="stylesheet" href="stylesheets/base/material.min.css">
+  	  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+      <link rel="stylesheet" href="stylesheets/app.css">
+  </head>
 
-<body>
-	<!-- The drawer is always open in large screens. The header is always shown,
-  even in small screens. -->
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-  <header class="mdl-layout__header">
-    <div class="mdl-layout__header-row">
-    	<!-- Title -->
-      <span class="mdl-layout-title">PASS CYCLING PLANER</span>
+  <body>
+  	<!-- The drawer is always open in large screens. The header is always shown,
+    even in small screens. -->
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+      	<!-- Title -->
+        <span class="mdl-layout-title">PASS CYCLING PLANER</span>
+      </div>
+    </header>
+    <div class="mdl-layout__drawer">
+      <form id="filter" action="#">
+  	  	<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+  		  <label class="mdl-button mdl-js-button mdl-button--icon" for="pass-filter">
+  		    <i class="material-icons">search</i>
+  		  </label>
+  		  <div class="mdl-textfield__expandable-holder">
+  		    <input class="mdl-textfield__input" type="text" id="pass-filter" pattern="[A-Z,a-z, ]*" placeholder="Filter...">
+  		    <label class="mdl-textfield__label" for="pass-filter">Filter...</label>
+  		    <span class="mdl-textfield__error">Letters and spaces only</span>
+  		  </div>
+  		</div>
+      <div class="no-result-found">Sorry, no results found</div>
+  	</form>
+      <nav class="mdl-navigation">
+      	<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+  		  <tbody data-bind="foreach: filteredMarkers">
+  		    <tr>
+            <td class="mdl-data-table__cell--non-numeric">
+              <label class="mdl-switch mdl-js-switch">
+                <input type="checkbox" class="mdl-switch__input toggle" data-bind="checked: selected, event: {change: $parent.displayMarkers}">
+                <span class="mdl-switch__label"></span>
+              </label>
+            </td>
+  		      <td class="mdl-data-table__cell--non-numeric" data-bind="text: name, event: {click: $parent.showPass}"></td>
+  		    </tr>
+  		  </tbody>
+  		</table>
+      <!-- ko if: selectedMarkers().length > 1 -->
+      <div class="mdl-card mdl-shadow--2dp drawer-card">
+        <div class="mdl-card__supporting-text">
+          Click on the button below, to see the optimized route between your selected markers.
+        </div>
+        <div class="mdl-card__actions mdl-card--border">
+          <!-- ko if: selectedMarkers().length > 2 -->
+          <label class="mdl-switch mdl-js-switch" for="roundtrip">
+            <input type="checkbox" id="roundtrip" class="mdl-switch__input" data-bind="checked: roundTrip">
+            <span class="mdl-switch__label">Roundtrip</span>
+          </label>
+           <!-- /ko -->
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary show-route" data-bind="event: {click: $root.displayDirections}">
+            Show Route
+          </button>
+        </div>
+      </div>
+      <!-- /ko -->
+      <div class="mdl-card mdl-shadow--2dp route-details drawer-card">
+        <!-- <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Route details:</h2>
+        </div> -->
+        <div class="mdl-card__supporting-text">
+          <h5>Route details:</h5>
+          <p class="details-title">Start Address:</p>
+          <span data-bind="text: startAddress"></span>
+          <p class="details-title">End Address:</p>
+          <span data-bind="text: endAddress"></span>
+          <p class="details-title">Length:</p>
+          <span data-bind="text: routeLength"></span>
+          <p class="details-title">Duration:</p>
+          <span data-bind="text: routeDuration"></span>
+        </div>
+        <div class="mdl-card__actions">
+          <button data-bind="event: {click: $root.clearRoute}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent clear-route">
+            Clear Route
+          </button>
+        </div>
+      </div>
+      
+      </nav>
     </div>
-  </header>
-  <div class="mdl-layout__drawer">
-    <form id="filter" action="#">
-	  	<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-		  <label class="mdl-button mdl-js-button mdl-button--icon" for="pass-filter">
-		    <i class="material-icons">search</i>
-		  </label>
-		  <div class="mdl-textfield__expandable-holder">
-		    <input class="mdl-textfield__input" type="text" id="pass-filter" pattern="[A-Z,a-z, ]*" placeholder="Filter...">
-		    <label class="mdl-textfield__label" for="pass-filter">Filter...</label>
-		    <span class="mdl-textfield__error">Letters and spaces only</span>
-		  </div>
-		</div>
-    <div class="no-result-found">Sorry, no results found</div>
-	</form>
-    <nav class="mdl-navigation">
-    	<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-		  <tbody data-bind="foreach: filteredMarkers">
-		    <tr>
-          <td class="mdl-data-table__cell--non-numeric">
-            <label class="mdl-switch mdl-js-switch">
-              <input type="checkbox" class="mdl-switch__input toggle" data-bind="checked: selected, event: {change: $parent.displayMarkers}">
-              <span class="mdl-switch__label"></span>
-            </label>
-          </td>
-		      <td class="mdl-data-table__cell--non-numeric" data-bind="text: name, event: {click: $parent.showPass}"></td>
-		    </tr>
-		  </tbody>
-		</table>
-    <!-- ko if: selectedMarkers().length > 1 -->
-    <div class="mdl-card mdl-shadow--2dp drawer-card">
-      <div class="mdl-card__supporting-text">
-        Click on the button below, to see the optimized route between your selected markers.
-      </div>
-      <div class="mdl-card__actions mdl-card--border">
-        <!-- ko if: selectedMarkers().length > 2 -->
-        <label class="mdl-switch mdl-js-switch" for="roundtrip">
-          <input type="checkbox" id="roundtrip" class="mdl-switch__input" data-bind="checked: roundTrip">
-          <span class="mdl-switch__label">Roundtrip</span>
-        </label>
-         <!-- /ko -->
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent show-route" data-bind="event: {click: $root.displayDirections}">
-          Show Route
-        </button>
-      </div>
-    </div>
-    <!-- /ko -->
-    <div class="mdl-card mdl-shadow--2dp route-details drawer-card">
-      <!-- <div class="mdl-card__title">
-        <h2 class="mdl-card__title-text">Route details:</h2>
-      </div> -->
-      <div class="mdl-card__supporting-text">
-        <h5>Route details:</h5>
-        <span>Length: </span><span data-bind="text: routeLength"></span><br>
-        <span>Duration: </span><span data-bind="text: routeDuration"></span>
-      </div>
-      <div class="mdl-card__actions">
-        <button data-bind="event: {click: $root.clearRoute}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent clear-route">
-          Clear Route
-        </button>
-      </div>
-    </div>
-    
-    </nav>
+    <main class="mdl-layout__content">
+      <div id="map"></div>
+    </main>
   </div>
-  <main class="mdl-layout__content">
-    <div id="map"></div>
-  </main>
-</div>
-<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js"></script>
-<script type="text/javascript" src="javascripts/app.js" async></script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4RuSmaLvSGKQdlTWFmQxetwHlh7XECk0&libraries=geometry"></script>
-</body>
-
+  <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js"></script>
+  <script type="text/javascript" src="javascripts/app.js" async></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4RuSmaLvSGKQdlTWFmQxetwHlh7XECk0&libraries=geometry"></script>
+  </body>
 </html>

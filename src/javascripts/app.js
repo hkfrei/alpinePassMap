@@ -396,8 +396,9 @@ var ViewModel = function() {
             travelMode: google.maps.TravelMode['BICYCLING']
         }, function(response, status){
             if (status === google.maps.DirectionsStatus.OK) {
-                console.log(response);
                 // Save some metadata about the route to display on screen
+                viewModel.startAddress(response.routes[0].legs[0].start_address);
+                viewModel.endAddress(response.routes[0].legs[0].end_address);
                 viewModel.routeLength(response.routes[0].legs[0].distance.text);
                 viewModel.routeDuration(response.routes[0].legs[0].duration.text);
                 // Very nice -> DirectionsRenderer Class!!!
@@ -422,6 +423,16 @@ var ViewModel = function() {
     @description Array of direction Display Objects.
     */
     this.directionsDisplays = [];
+
+    /*
+    @description The start address of the route.
+    */
+    this.startAddress = ko.observable(0);
+
+    /*
+    @description The end address of the route.
+    */
+    this.endAddress = ko.observable(0);
 
     /*
     @description The length in km of the cycling tour.
