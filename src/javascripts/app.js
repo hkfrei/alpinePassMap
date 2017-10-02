@@ -23,7 +23,6 @@ window.onload = function() {
     if (!window.Promise) {
         window.Promise = Promise;
     }
-
     //Do all the init work like adding all the markers and register event listeners
     viewModel.init();
 };
@@ -136,10 +135,22 @@ var ViewModel = function() {
                 viewModel.showInfoWindow();
             });
             mapMarker.addListener('mouseover', function() {
-                this.setIcon(appModel.highlightedMarkerIcon());
+                /*
+                check for internet connection, because we are loading
+                the new marker image from remote.
+                */
+                if(window.navigator.onLine) {
+                    this.setIcon(appModel.highlightedMarkerIcon());
+                }
             });
             mapMarker.addListener('mouseout', function() {
-                this.setIcon(appModel.defaultMarkerIcon());
+                /*
+                check for internet connection, because we are loading
+                the new marker image from remote.
+                */
+                if(window.navigator.onLine) {
+                    this.setIcon(appModel.defaultMarkerIcon());
+                }
             });
             viewModel.mapMarkers.push(mapMarker);
         }, this);
@@ -262,7 +273,7 @@ var ViewModel = function() {
     */
     this.getWikipediaArticle = function(searchstring) {
         return new Promise(function(resolve, reject) {
-            fetch('https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search='+searchstring+'&limit=5')
+            fetch('https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search='+searchstring+'&limit=2')
                 .then(function(resp) {
                     if (resp.ok) {
                         resolve(resp.json());
@@ -270,8 +281,8 @@ var ViewModel = function() {
                     // if response not ok
                     reject('Network response was not ok. No Wikipedia Info is available');
                 })
-                .catch(function() {
-                    viewModel.populateInfoWindow(viewModel.currentMarker, true);
+                .catch(function(error) {
+                    reject(error.message);
                 });
         });
     };
@@ -325,9 +336,7 @@ var ViewModel = function() {
     @param {object} marker - the map marker object that got clicked.
     @param {boolean} wikifail - a boolean value to indicate that it was not possible to load wikipedia infos.
     */
-    this.populateInfoWindow = function(marker, wikifail) {
-        //wikifail defaults to false
-        wikifail = wikifail === true ? true : false;
+    this.populateInfoWindow = function(marker) {
         var iw = viewModel.getInfoWindow();
         //check if there is allready an infoWindow instance available
         if (!iw) {
@@ -343,26 +352,24 @@ var ViewModel = function() {
             iw.addListener('closeclick', function() {
                 iw.marker = null;
             });
-
-            //get wikipedia data if possible
-            if(!wikifail) {
-                viewModel.getWikipediaArticle(marker.title)
-                    .then(function(result) {
-                        var name = result[0];
-                        var description = result[2][0] || 'Sorry, no Wikipedia description available';
-                        var link = result[3][0] || 'Sorry, no Wikipedia article available';
-                        iw.setContent(viewModel.getIwContent(name, description, link));
-                        //add streetView data to the Info Window
-                        viewModel.getStreetViewPanorama(marker);
-                    });
-            } else {
-                // error while loading wikipedia
-                var name = appModel.currentMarker.title;
-                var description = 'Sorry, no description available. There was an error while loading wikipedia info';
-                var link = false;
-                iw.setContent(viewModel.getIwContent(name, description, link));
-                viewModel.getStreetViewPanorama(appModel.currentMarker);
-            }
+            viewModel.getWikipediaArticle(marker.title)
+                .then(function(result) {
+                    var name = result[0];
+                    var description = result[2][0] || 'Sorry, no Wikipedia description available';
+                    var link = result[3][0] || 'Sorry, no Wikipedia article available';
+                    iw.setContent(viewModel.getIwContent(name, description, link));
+                    //add streetView data to the Info Window
+                    viewModel.getStreetViewPanorama(marker);
+                })
+                .catch(function(errorMessage) {
+                    // fetch failed. Add a corresponding message to the info window.
+                    var name = appModel.currentMarker.title;
+                    var description = 'Sorry, no description available. There was an error while loading Wikipedia info';
+                    description += '<br>Reason: ' + errorMessage;
+                    var link = false;
+                    iw.setContent(viewModel.getIwContent(name, description, link));
+                    viewModel.getStreetViewPanorama(appModel.currentMarker);
+                });
         }
     };
 
