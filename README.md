@@ -72,7 +72,9 @@ After that, you can copy the contents of the public folder to your webserver of 
 
 * [BLENDID](https://github.com/vigetlabs/blendid/blob/master/README.md) - The awesome build tools
 * [YARN](https://yarnpkg.com/) - Package Management
-* [Google Maps API](https://developers.google.com/maps/documentation/javascript/) - Mapping library
+* [Google Maps API](https://developers.google.com/maps/documentation/javascript/) - Mapping library and directions Service
+* [Wikipedia](https://de.wikipedia.org/) The Wikipedia API.
+* [Material Design Lite](https://getmdl.io/index.html) layout elements (css and javascript).
 
 ## Contributing
 
@@ -94,7 +96,7 @@ See also the list of [contributors](https://github.com/hkfrei/alpinePassMap/cont
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
-* [UDACITY](https://www.udacity.com) for the code examples on how to work with the directions service.
+* [UDACITY](https://www.udacity.com) for the code examples on how to work with the Google directions service.
 * [Material Design Lite](https://getmdl.io/index.html) for some awesome layout elements (css and javascript).
 * The awesome [BLENDID](https://github.com/vigetlabs/blendid/blob/master/README.md) task and build tools. With that, I finally found a good way to organize my code in modules.
 * [Wikipedia](https://de.wikipedia.org/) For the use of their API.
