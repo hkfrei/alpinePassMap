@@ -23,18 +23,23 @@
     </header>
     <div class="mdl-layout__drawer">
       <form id="filter" action="#">
-  	  	<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-  		  <label class="mdl-button mdl-js-button mdl-button--icon" for="pass-filter">
-  		    <i class="material-icons">search</i>
-  		  </label>
-  		  <div class="mdl-textfield__expandable-holder">
-  		    <input class="mdl-textfield__input" type="text" id="pass-filter" pattern="[A-Z,a-z, ]*" placeholder="Filter...">
-  		    <label class="mdl-textfield__label" for="pass-filter">Filter...</label>
-  		    <span class="mdl-textfield__error">Letters and spaces only</span>
-  		  </div>
-  		</div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="pass-filter" pattern="[A-Z,a-z, ]*">
+        <label class="mdl-textfield__label" for="pass-filter">Filter passes...</label>
+        <span class="mdl-textfield__error">Letters and spaces only</span>
+      </div>
       <div class="no-result-found">Sorry, no results found</div>
-  	</form>
+    </form>
+      
+      <!-- ko if: selectedMarkers().length < 2 -->
+      <div>
+        <div id="info" class="icon material-icons">info</div>
+        <div class="mdl-tooltip" data-mdl-for="info">
+          Switch on some passes to plan your route.
+        </div>
+      </div>
+      <!-- /ko -->
+  	
       <nav class="mdl-navigation">
       	<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
   		  <tbody data-bind="foreach: filteredMarkers">
@@ -45,7 +50,7 @@
                 <span class="mdl-switch__label"></span>
               </label>
             </td>
-  		      <td class="mdl-data-table__cell--non-numeric" data-bind="text: name, event: {click: $parent.showPass}"></td>
+  		      <td class="mdl-data-table__cell--non-numeric pass-list-cell" data-bind="text: name, event: {click: $parent.showPass}"></td>
   		    </tr>
   		  </tbody>
   		</table>
