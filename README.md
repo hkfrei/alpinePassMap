@@ -94,6 +94,8 @@ See also the list of [contributors](https://github.com/hkfrei/alpinePassMap/cont
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
-
+* [UDACITY](https://www.udacity.com) for the code examples on how to work with the directions service.
+* [Material Design Lite](https://getmdl.io/index.html) for some awesome layout elements (css and javascript).
 * The awesome [BLENDID](https://github.com/vigetlabs/blendid/blob/master/README.md) task and build tools. With that, I finally found a good way to organize my code in modules.
+* [Wikipedia](https://de.wikipedia.org/) For the use of their API.
 * Vince Garcia, my cycling buddy who drove many of those passes with me;-)

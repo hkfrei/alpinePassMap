@@ -1,6 +1,6 @@
 /*global google*/
 /*
-Inside this module, I placed funtions that are responsible for getting content for the infoWindow.
+Inside this module, I placed functions that are responsible for getting content for the infoWindow.
 I put them in a separate 'mapView' module, because they are explicitly here to display content on the map,
 */
 export default (function(){
