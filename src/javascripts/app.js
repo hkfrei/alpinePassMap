@@ -4,10 +4,10 @@ require('material.min.js');
 require('../../node_modules/whatwg-fetch/fetch.js');
 import Promise from 'promise-polyfill';
 
-// import neccessary model data and helper functions
+// import neccessary model data and helper functions for the view
 import mapStyle from './modules/mapStyle';
-import  * as mapView from './modules/mapView';
 import appModel from './modules/model';
+import mapView from './modules/mapView';
 
 /*
 @description Event listener when window object has finished loading.
@@ -37,7 +37,7 @@ var ViewModel = function() {
     'use strict';
 
     /*
-    @description getter for the google.maps.InfoWindow obect.
+    @description getter for the google.maps.InfoWindow object.
     @returns The info window object or null if it doesn't exist.
     */
     this.getInfoWindow = function() {
@@ -84,7 +84,7 @@ var ViewModel = function() {
     }, this);
 
     /*
-    @description returns a map marker by id.
+    @description returns a map marker by id property.
     @Param {number} id - the id property of the marker who needs to be returned.
     */
     this.getMarkerById = function(id) {
@@ -256,124 +256,22 @@ var ViewModel = function() {
     };
 
     /*
-    @description show the right info window when a list item gets clicked
+    @description display the info window when a map marker gets clicked.
     */
     this.showInfoWindow = function() {
-        var iw = viewModel.getInfoWindow();
-        if(iw) {
-            iw.setMap(null);
-        }
-        viewModel.bounceOnce(appModel.currentMarker);
-        window.setTimeout(function(){
-            viewModel.populateInfoWindow(appModel.currentMarker);
-        }, 750);
-    };
-
-    /*
-    @description search wikipedia articles for a given keyword.
-    @param {string} searchstring - the keyword to search for in wikipedia.
-    @returns promise with the json response or an error message
-    */
-    this.getWikipediaArticle = function(searchstring) {
-        return new Promise(function(resolve, reject) {
-            fetch('https://en.wikipedia.org/w/api.php?&origin=*&action=opensearch&search='+searchstring+'&limit=2')
-                .then(function(resp) {
-                    if (resp.ok) {
-                        resolve(resp.json());
-                    }
-                    // if response not ok
-                    reject('Network response was not ok. No Wikipedia Info is available');
-                })
-                .catch(function(error) {
-                    reject(error.message);
-                });
-        });
-    };
-
-    /*
-    @description adds a street view panorama to the info window.
-    @param {object} markter - the selected marker to add the info window to.
-    */
-    this.getStreetViewPanorama = function(marker) {
-        //get streetView data
-        var streetViewService = new google.maps.StreetViewService();
-        var radius = 50;
-        var iw = viewModel.getInfoWindow();
-
-        /* In case the status is OK, which means the pano was found,
-        compute the position of the streetview image, then calculate
-        the heading, then get a panorama from that and set the options.
-        */
-        function getStreetView(data, status){
-            if (status === google.maps.StreetViewStatus.OK) {
-                var nearStreetViewLocation = data.location.latLng;
-                var heading = google.maps.geometry.spherical.computeHeading(
-                    nearStreetViewLocation, marker.position);
-                var panoramaOptions = {
-                    position: nearStreetViewLocation,
-                    pov: {
-                        heading: heading,
-                        pitch: 20 //vertical angle
-                    }
-                };
-                new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
-            } else {
-                // if status is not OK (failure)
-                var streetViewFailureContent = iw.getContent();
-                // remove the id=pano. No street view should be displayed
-                streetViewFailureContent = streetViewFailureContent.replace(' id="pano"','');
-                streetViewFailureContent += '<h6>No Street View Found, Sorry...</h6>';
-                iw.setContent(streetViewFailureContent);
-            }
-        }
-        /* 
-        Use streetview service to get the closest streetview image within
-        50 meters of the markers position 
-        */
-        streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-        iw.open(this.map, marker);
-    };
-
-    /*
-    @description Show the info window an populate it with wikipedia and streetview content.
-    @param {object} marker - the map marker object that got clicked.
-    @param {boolean} wikifail - a boolean value to indicate that it was not possible to load wikipedia infos.
-    */
-    this.populateInfoWindow = function(marker) {
         var iw = viewModel.getInfoWindow();
         //check if there is allready an infoWindow instance available
         if (!iw) {
             iw = new google.maps.InfoWindow({maxWidth: 420});
             viewModel.setInfoWindow(iw);
         }
-        //make sure the info window is not already opened on this marker
-        if (iw.marker !== marker) {
-            // clear iw content to give the streetview time to load.
-            iw.setContent('');
-            iw.marker = marker;
-            // make sure the marker property is cleared if the infoWindow is closed
-            iw.addListener('closeclick', function() {
-                iw.marker = null;
-            });
-            viewModel.getWikipediaArticle(marker.title)
-                .then(function(result) {
-                    var name = result[0];
-                    var description = result[2][0] || 'Sorry, no Wikipedia description available';
-                    var link = result[3][0] || 'Sorry, no Wikipedia article available';
-                    iw.setContent(mapView.getIwContent(name, description, link));
-                    //add streetView data to the Info Window
-                    viewModel.getStreetViewPanorama(marker);
-                })
-                .catch(function(errorMessage) {
-                    // fetch failed. Add a corresponding message to the info window.
-                    var name = appModel.currentMarker.title;
-                    var description = 'Sorry, no description available. There was an error while loading Wikipedia info';
-                    description += '<br>Reason: ' + errorMessage;
-                    var link = false;
-                    iw.setContent(mapView.getIwContent(name, description, link));
-                    viewModel.getStreetViewPanorama(appModel.currentMarker);
-                });
+        if(iw) {
+            iw.setMap(null);
         }
+        viewModel.bounceOnce(appModel.currentMarker);
+        window.setTimeout(function(){
+            mapView.populateInfoWindow(appModel.currentMarker, iw);
+        }, 750);
     };
 
     /*
