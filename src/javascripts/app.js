@@ -1,9 +1,12 @@
 /*globals ko, google, Promise, componentHandler require */
 require('material.min.js');
-// Get the polyfills for fetch and promises because they are not yet in all browsers
+// get the polyfills for fetch and promises because they are not yet in all browsers
 require('../../node_modules/whatwg-fetch/fetch.js');
 import Promise from 'promise-polyfill';
+
+// import neccessary model data and helper functions
 import mapStyle from './modules/mapStyle';
+import  * as mapView from './modules/mapView';
 import appModel from './modules/model';
 
 /*
@@ -357,7 +360,7 @@ var ViewModel = function() {
                     var name = result[0];
                     var description = result[2][0] || 'Sorry, no Wikipedia description available';
                     var link = result[3][0] || 'Sorry, no Wikipedia article available';
-                    iw.setContent(viewModel.getIwContent(name, description, link));
+                    iw.setContent(mapView.getIwContent(name, description, link));
                     //add streetView data to the Info Window
                     viewModel.getStreetViewPanorama(marker);
                 })
@@ -367,23 +370,10 @@ var ViewModel = function() {
                     var description = 'Sorry, no description available. There was an error while loading Wikipedia info';
                     description += '<br>Reason: ' + errorMessage;
                     var link = false;
-                    iw.setContent(viewModel.getIwContent(name, description, link));
+                    iw.setContent(mapView.getIwContent(name, description, link));
                     viewModel.getStreetViewPanorama(appModel.currentMarker);
                 });
         }
-    };
-
-    this.getIwContent = function(name, description, link) {
-        var iwCard = `<div class="mdl-card mdl-shadow--2dp"><div class="mdl-card__title mdl-card--border">
-                        <h2 class="mdl-card__title-text">${name}</h2></div>
-                        <div class="mdl-card__media" id="pano"></div>
-                        <div class="mdl-card__supporting-text mdl-card--border">${description}</div>`;
-        if (link) {
-            iwCard += `<div class="mdl-card__actions"><a href="${link}" target="blank">More info...</a></div></div>`;
-        } else {
-            iwCard += '<div class="mdl-card__actions">Sorry No Link to Wikipedia available</div></div>';
-        }
-        return iwCard;
     };
 
     /*
