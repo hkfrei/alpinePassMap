@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "A map of swiss alpine passes who are great for cycling",
   "main": "app.js",
-  "homepage": "http://hkfrei.github.io/PassCyclingPlaner",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint \"./src/javascripts/app.js\" \"./src/javascripts/modules/*.js\""
