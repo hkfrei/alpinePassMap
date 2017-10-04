@@ -6,7 +6,7 @@ Plan your cycling route over various swiss mountain passes. 🚵
 
 You can get a local copy of the project by running this command on your console:
 ```
-git@github.com:hkfrei/PassCyclingPlaner.git
+git clone git@github.com:hkfrei/PassCyclingPlaner.git
 ```
 After that, you should enter the newly created directory by typing...
 `cd theNewDir` where 'theNewDir' is the directory you cloned the repo in.
