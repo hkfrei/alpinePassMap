@@ -332,7 +332,7 @@ var ViewModel = function() {
             origin: selectedOrigin, //Ausgangspunkt
             destination: selectedDestination, //Ziel
             waypoints: selectedWaypoints,
-            travelMode: google.maps.TravelMode['BICYCLING']
+            travelMode: 'BICYCLING'
         }, function(response, status){
             if (status === google.maps.DirectionsStatus.OK) {
                 // Save some metadata about the route to display on screen
