@@ -8,8 +8,8 @@ You can get a local copy of the project by running this command on your console:
 ```
 git clone git@github.com:hkfrei/PassCyclingPlaner.git
 ```
-After that, you should enter the newly created directory by typing...
-`cd theNewDir` where 'theNewDir' is the directory you cloned the repo in.
+After that, you should have a new directory named "PassCyclingPlaner". Enter it by typing...
+`cd PassCyclingPlaner`.
 
 
 ### Prerequisites
