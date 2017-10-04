@@ -27,12 +27,25 @@ export default (function(){
     };
 
     /*
+    @description Crete the info-window content when a street view request failed.
+    @param {object} infoWindow - A google.maps.InfoWindow instance.
+    @returns {string} The htlml content.
+    */
+    const getStreetViewFailureContent = function(infoWindow) {
+        var streetViewFailureContent = infoWindow.getContent();
+        // remove the pano div. No street view should be displayed.
+        var streetViewErrorText = '<div class="mdl-card__supporting-text mdl-card--border">';
+        streetViewErrorText += 'Because of network problems, it\'s impossible to load street-view images, sorry.</div>';
+        streetViewFailureContent = streetViewFailureContent.replace('<div class="mdl-card__media" id="pano"></div>', streetViewErrorText);
+        return streetViewFailureContent;
+    };
+
+    /*
     @description adds a street view panorama to the info window.
     @param {object} markter - the selected marker to add the info window to.
     @param {object} infoWindow - A google.maps.InfoWindow Instance.
     */
     const getStreetViewPanorama = function(marker, infoWindow, map) {
-        'use strict';
         //get streetView data
         var streetViewService = new google.maps.StreetViewService();
         var radius = 50;
@@ -55,13 +68,7 @@ export default (function(){
                 };
                 new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
             } else {
-                // if status is not OK (failure)
-                var streetViewFailureContent = infoWindow.getContent();
-                // remove the pano div. No street view should be displayed.
-                var streetViewErrorText = '<div class="mdl-card__supporting-text mdl-card--border">';
-                streetViewErrorText += 'Because of network problems, it\'s impossible to load street-view images, sorry.</div>';
-                streetViewFailureContent = streetViewFailureContent.replace('<div class="mdl-card__media" id="pano"></div>', streetViewErrorText);
-                infoWindow.setContent(streetViewFailureContent);
+                infoWindow.setContent(getStreetViewFailureContent(infoWindow));
             }
         };
         /* 
@@ -80,7 +87,6 @@ export default (function(){
     @returns {string} string with the content for the info window
     */
     const getIwContent = function(name, description, link) {
-        'use strict';
         var iwCard = `<div class="mdl-card mdl-shadow--2dp"><div class="mdl-card__title mdl-card--border">
                         <h2 class="mdl-card__title-text">${name}</h2></div>
                         <div class="mdl-card__media" id="pano"></div>
@@ -137,6 +143,5 @@ export default (function(){
 
     return {
         populateInfoWindow: populateInfoWindow
-
     };
 })();
