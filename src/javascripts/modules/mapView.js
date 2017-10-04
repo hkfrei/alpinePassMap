@@ -57,9 +57,10 @@ export default (function(){
             } else {
                 // if status is not OK (failure)
                 var streetViewFailureContent = infoWindow.getContent();
-                // remove the id=pano. No street view should be displayed
-                streetViewFailureContent = streetViewFailureContent.replace(' id="pano"','');
-                streetViewFailureContent += '<h6>No Street View Found, Sorry...</h6>';
+                // remove the pano div. No street view should be displayed.
+                var streetViewErrorText = '<div class="mdl-card__supporting-text mdl-card--border">';
+                streetViewErrorText += 'Because of network problems, it\'s impossible to load street-view images, sorry.</div>';
+                streetViewFailureContent = streetViewFailureContent.replace('<div class="mdl-card__media" id="pano"></div>', streetViewErrorText);
                 infoWindow.setContent(streetViewFailureContent);
             }
         };
@@ -83,8 +84,12 @@ export default (function(){
         var iwCard = `<div class="mdl-card mdl-shadow--2dp"><div class="mdl-card__title mdl-card--border">
                         <h2 class="mdl-card__title-text">${name}</h2></div>
                         <div class="mdl-card__media" id="pano"></div>
-                        <div class="mdl-card__supporting-text mdl-card--border">${description}<br>
-                        (This text is provided by Wikipedia)</div>`;
+                        <div class="mdl-card__supporting-text mdl-card--border">${description}<br>`;
+        if(description.indexOf('network problems')){
+            iwCard += '</div>';
+        } else {
+            iwCard += '(This text is provided by Wikipedia)</div>';
+        }
         if (link) {
             iwCard += `<div class="mdl-card__actions"><a href="${link}" target="blank">Wikipedia article...</a></div></div>`;
         } else {
@@ -120,8 +125,9 @@ export default (function(){
                 .catch(function(errorMessage) {
                     // fetch failed. Add a corresponding message to the info window.
                     var name = marker.title;
-                    var description = 'Sorry, no description available. There was an error while loading Wikipedia info';
+                    var description = 'Because of network problems, it\'s impossible to load Wikipedia info, sorry.';
                     description += '<br>Reason: ' + errorMessage;
+                    description = description.replace('(This text is provided by Wikipedia)', '');
                     var link = false;
                     infoWindow.setContent(getIwContent(name, description, link));
                     getStreetViewPanorama(marker, infoWindow);
