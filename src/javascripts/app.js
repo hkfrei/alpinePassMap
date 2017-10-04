@@ -327,7 +327,7 @@ var ViewModel = function() {
         var selectedOrigin = this.selectedMarkers()[0].location();
         var selectedDestination  = this.getDestination(selectedOrigin);
         var selectedWaypoints = this.getWaypoints();
-        var directionsService = new google.maps.DirectionsService;
+        var directionsService = new google.maps.DirectionsService();
         directionsService.route({
             origin: selectedOrigin, //Ausgangspunkt
             destination: selectedDestination, //Ziel
