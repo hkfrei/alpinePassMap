@@ -29,6 +29,14 @@ main,
 	display: none;
 }
 
+.visible {
+	display: block;
+}
+
+.hidden {
+	display: none;
+}
+
 .mdl-data-table {
 	margin: 0 auto;
 	width: 95%;

@@ -65,8 +65,18 @@ var ViewModel = function() {
         this.infoWindow = iwObject;
     };
 
+    this.filter = ko.observable('');
+
     /*
-    @description: array for all the google.maps.Marker objects on the map.
+    @description subscribe for changes in the filter property.
+    This way we can update the markers on the map.
+    */
+    this.filter.subscribe(function() {
+        this.displayMarkers(this.filterByTerm(this.filter()));
+    }, this);
+
+    /*
+    @description array for all the google.maps.Marker objects on the map.
     this array is neccessary to hide the markers when they don't match the filter.
     */
     this.mapMarkers = [];
@@ -79,20 +89,38 @@ var ViewModel = function() {
     }));
 
     /*
+    @description filter the markers by a term and return an array with all the matches.
+    @param {string} term the search term.
+    @returns {array} array with all the markers where the marker name matches the filter
+    */
+    this.filterByTerm = function(term) {
+        term = term.toLowerCase();
+        return ko.utils.arrayFilter(this.markers(), function(marker) {
+            if (marker.name.toLowerCase().lastIndexOf(term, 0) === 0) {
+                return marker;
+            }
+        });
+    };
+
+    /*
     @description computed array with all the visible list elements.
     */
-    this.filteredMarkers = ko.computed(function() {
-        return ko.utils.arrayFilter(this.markers(), function(marker){
-            return marker.visibility() === true;
-        });
+    this.filteredList = ko.computed(function() {
+        var self = this;
+        var filter = self.filter().toLowerCase();
+        if (!filter) {
+            return self.markers();
+        } else {
+            return this.filterByTerm(filter);
+        }
     }, this);
 
     /*
     @description computed array with all the selected list elements.
     */
     this.selectedMarkers = ko.computed(function() {
-        return ko.utils.arrayFilter(this.markers(), function(marker){
-            return marker.selected() === true;
+        return ko.utils.arrayFilter(this.filteredList(), function(element){
+            return element.selected === true;
         });
     }, this);
 
@@ -123,26 +151,39 @@ var ViewModel = function() {
             styles: mapStyle
         });
         this.map = map;
-        var filter = document.getElementById('pass-filter');
-        filter.addEventListener('input', function(e){
-            var searchString = e.target.value;
-            this.filterMarkers(searchString.toLowerCase());
-        }.bind(this));
+        this.displayMarkers(this.markers());
 
-        this.displayMarkers();
+        /*
+        custom binding to prevent mdl switch class to not be applyed on update
+        credit: https://stackoverflow.com/questions/44208015/how-to-bind-knockout-checkbox-to-a-material-design-lite
+        */
+        ko.bindingHandlers.updateSwitch = {
+            init: function(element) {
+                if(typeof(componentHandler) !== 'undefined') {
+                    componentHandler.upgradeElement(element);
+                }
+            }
+        };
     };
 
     /*
     @description display all the filtered markers on the map
     */
-    this.displayMarkers = function() {
+    this.displayMarkers = function(markers) {
+        //when the select switch is clicked we dont't have an array as parameter.
+        if(!Array.isArray(markers)) {
+            markers = viewModel.filteredList();
+            // because filteredList did not change when only the selected property of
+            // one of it's children changed, we have to notify selectedMarkers manually
+            viewModel.filteredList.notifySubscribers();
+        }
         viewModel.removeMapMarkers();
-        viewModel.filteredMarkers().forEach(function(marker) {
+        markers.forEach(function(marker) {
             var mapMarker = new google.maps.Marker({
-                id: marker.id(),
-                position: marker.location(),
-                title: marker.name(),
-                icon: marker.selected() ? appModel.highlightedMarkerIcon():appModel.defaultMarkerIcon(),
+                id: marker.id,
+                position: marker.location,
+                title: marker.name,
+                icon: marker.selected ? appModel.highlightedMarkerIcon():appModel.defaultMarkerIcon(),
                 map: viewModel.map
             });
             mapMarker.addListener('click', function() {
@@ -170,9 +211,7 @@ var ViewModel = function() {
             });
             viewModel.mapMarkers.push(mapMarker);
         }, this);
-        viewModel.panToMarkers();
-        //this makes sure the roundtrip switch has the right design (maybe it's a bug in material design lite)
-        componentHandler.upgradeDom();
+        viewModel.panToMarkers(markers);
         //Very important for the click handler to work properly across browsers
         return true;
     };
@@ -199,45 +238,18 @@ var ViewModel = function() {
     @description If only one marker is visible, center the map on it
     otherwise set center an zoom to the initial values.
     */
-    this.panToMarkers = function() {
-        if (this.filteredMarkers().length === 1) {
-            this.map.setZoom(14);
-            if (this.map.getCenter() !== this.filteredMarkers()[0].location()) {
-                this.map.panTo(this.filteredMarkers()[0].location());
-            }
-        } else {
-            this.map.panTo(appModel.INITIAL_CENTER);
-            this.map.setZoom(appModel.INITIAL_ZOOM);
+    this.panToMarkers = function(markers) {
+        if (markers.length === 0) {
+            return;
         }
-    };
-
-    /*
-    @description filter the markers based on a search string from the input field.
-    @Param {string} searchString - The string to filter the pass names against.
-    */
-    this.filterMarkers = function(searchString) {
-        var noResults = document.getElementsByClassName('no-result-found')[0];
-        noResults.style.display = 'none';
-        this.markers().forEach(function(marker) {
-            if (searchString.length === 0) {
-                marker.visibility(true);
-            } else {
-                if (marker.name().toLowerCase().indexOf(searchString)) {
-                    marker.visibility(false);
-                } else {
-                    marker.visibility(true);
-                }
-            }
-        });
-        if (this.filteredMarkers().length === 0) {
-            noResults.style.display = 'block';
-        }
-        //display the info window if there is only one marker on the map.
-        if (this.filteredMarkers().length === 1) {
-            this.displayMarkers();
-            this.bounceOnce(this.getMarkerById(this.filteredMarkers()[0].id()));
+        if (markers.length > 1) {
+            var bounds = new google.maps.LatLngBounds();
+            markers.forEach(function(marker) {
+                bounds.extend(marker.location);
+            });
+            this.map.fitBounds(bounds);
         } else {
-            this.displayMarkers();
+            this.map.setCenter(markers[0].location);
         }
     };
 
@@ -257,12 +269,12 @@ var ViewModel = function() {
     @param {object} listMarker - the list marker object that got clicked. (not the map marker object).
     */
     this.showPass = function(listMarker) {
-        var mapMarker = viewModel.getMarkerById(listMarker.id());
+        var mapMarker = viewModel.getMarkerById(listMarker.id);
         // if the clicked marker is equal to the current marker
         // only show iw when it's not visible.
         if (appModel.currentMarker && (mapMarker.id === appModel.currentMarker.id)) {
             if(viewModel.getInfoWindow().getMap() === null) {
-                this.map.panTo(mapMarker.position);
+                viewModel.map.panTo(mapMarker.position);
                 viewModel.showInfoWindow();
             }
         } else {
@@ -300,7 +312,7 @@ var ViewModel = function() {
         if (this.selectedMarkers().length < 3) {
             this.roundTrip(false);
         }
-        return this.roundTrip() ? origin : this.selectedMarkers()[selectedMarkersLength - 1].location();
+        return this.roundTrip() ? origin : this.selectedMarkers()[selectedMarkersLength - 1].location;
     };
 
     /*
@@ -312,7 +324,7 @@ var ViewModel = function() {
         if (this.selectedMarkers().length > 2) {
             var waypointsCount = this.roundTrip() ? 1 : 2;
             for(var i = 1; i <= this.selectedMarkers().length - waypointsCount; i++) {
-                response.push({location:this.selectedMarkers()[i].location(), stopover:false});
+                response.push({location:this.selectedMarkers()[i].location, stopover:false});
             }
         }
         return response;
@@ -324,7 +336,7 @@ var ViewModel = function() {
     */
     this.displayDirections = function() {
         this.clearRoute();
-        var selectedOrigin = this.selectedMarkers()[0].location();
+        var selectedOrigin = this.selectedMarkers()[0].location;
         var selectedDestination  = this.getDestination(selectedOrigin);
         var selectedWaypoints = this.getWaypoints();
         var directionsService = new google.maps.DirectionsService();
@@ -401,6 +413,6 @@ var ViewModel = function() {
         }
     };
 };
-// activate knockout 
+// activate knockout
 var viewModel = new ViewModel();
 ko.applyBindings(viewModel);
