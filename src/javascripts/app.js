@@ -250,6 +250,7 @@ var ViewModel = function() {
             this.map.fitBounds(bounds);
         } else {
             this.map.setCenter(markers[0].location);
+            this.map.setZoom(13);
         }
     };
 
@@ -366,9 +367,10 @@ var ViewModel = function() {
             } else {
                 window.alert('Directions request failed due to ' + status);
             }
-            document.getElementsByClassName('route-details')[0].style.display = 'block';
+            viewModel.routeDetails(true);
         });
     };
+    this.routeDetails = ko.observable(false);
 
     /*
     @description Array of direction Display Objects.
@@ -409,7 +411,7 @@ var ViewModel = function() {
                 route.setMap(null);
             });
             viewModel.directionsDisplays = [];
-            document.getElementsByClassName('route-details')[0].style.display = 'none';
+            viewModel.routeDetails(false);
         }
     };
 };
