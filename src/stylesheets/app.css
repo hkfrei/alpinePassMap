@@ -20,6 +20,10 @@ main,
 	overflow-y: auto;
 }
 
+.offline-header {
+	background-color: #ff5722;
+}
+
 .mdl-layout__drawer {
 	overflow-x: hidden;
 }
@@ -56,10 +60,6 @@ main,
 	margin: 10px auto;
 	width: 97%;
 }
-
-/*.route-details {
-	display: none;
-}*/
 
 .details-title {
 	font-weight: bold;

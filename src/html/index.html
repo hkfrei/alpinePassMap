@@ -21,6 +21,12 @@
         <span class="mdl-layout-title">PASS CYCLING PLANER</span>
       </div>
     </header>
+    <header class="mdl-layout__header offline-header" data-bind="css: {hidden: offline() === false}">
+    <div class="mdl-layout__header-row">
+      <!-- Offline Text -->
+      <span class="mdl-layout-title">You are offline</span>
+    </div>
+  </header>
     <div class="mdl-layout__drawer">
       <form id="filter" action="#">
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -96,10 +102,6 @@
     <main class="mdl-layout__content">
       <div id="map"></div>
     </main>
-    <div id="toast" class="mdl-js-snackbar mdl-snackbar">
-      <div class="mdl-snackbar__text"></div>
-      <button class="mdl-snackbar__action" type="button"></button>
-    </div>
   </div>
   <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js"></script>
   <script type="text/javascript" src="javascripts/app.js"></script>

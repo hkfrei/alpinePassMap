@@ -15,18 +15,11 @@ At this time we can load the google map and do other init stuff.
 */
 window.onload = function() {
     // check for network problems
-    var snackbarContainer = document.getElementById('toast');
     window.addEventListener('online', function(){
-        var data = {
-            message: 'You\'re online again;-)'
-        };
-        snackbarContainer.MaterialSnackbar.showSnackbar(data);
+        viewModel.offline(false);
     });
     window.addEventListener('offline', function(){
-        var data = {
-            message: 'You lost your Network connection.'
-        };
-        snackbarContainer.MaterialSnackbar.showSnackbar(data);
+        viewModel.offline(true);
     });
     //activate the promise polyfill if necessary
     if (!window.Promise) {
@@ -52,6 +45,11 @@ window.mapError = function() {
 */
 var ViewModel = function() {
     'use strict';
+
+    /*
+    @description boolean observable about the online/offline status off the app.
+    */
+    this.offline = ko.observable(false);
 
     /*
     @description getter for the google.maps.InfoWindow object.
