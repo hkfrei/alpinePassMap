@@ -159,7 +159,7 @@ var ViewModel = function() {
         custom binding to prevent mdl switch class to not be applyed on update
         credit: https://stackoverflow.com/questions/44208015/how-to-bind-knockout-checkbox-to-a-material-design-lite
         */
-        ko.bindingHandlers.updateSwitch = {
+        ko.bindingHandlers.update = {
             init: function(element) {
                 if(typeof(componentHandler) !== 'undefined') {
                     componentHandler.upgradeElement(element);

@@ -40,7 +40,7 @@
       <!-- ko if: selectedMarkers().length < 2 -->
       <div data-bind="css: {hidden: filteredList().length < 1}">
         <div id="info" class="icon material-icons">info</div>
-        <div class="mdl-tooltip" data-mdl-for="info">
+        <div class="mdl-tooltip" data-mdl-for="info" data-bind="update">
           Switch on some passes to plan your route.
         </div>
       </div>
@@ -51,10 +51,7 @@
   		  <tbody data-bind="foreach: filteredList">
   		    <tr>
             <td class="mdl-data-table__cell--non-numeric">
-              <label class="mdl-switch mdl-js-switch" data-bind="updateSwitch">
-                <input type="checkbox" class="mdl-switch__input toggle" data-bind="checked: selected, event: {click: $parent.displayMarkers}">
-                <span class="mdl-switch__label"></span>
-              </label>
+                <input type="checkbox" data-bind="checked: selected, event: {click: $parent.displayMarkers}">
             </td>
   		      <td class="mdl-data-table__cell--non-numeric pass-list-cell" data-bind="text: name, event: {click: $parent.showPass}"></td>
   		    </tr>
@@ -67,7 +64,7 @@
         </div>
         <div class="mdl-card__actions mdl-card--border">
           <!-- ko if: selectedMarkers().length > 2 -->
-          <label class="mdl-switch mdl-js-switch" for="roundtrip" data-bind="updateSwitch">
+          <label class="mdl-switch mdl-js-switch" for="roundtrip" data-bind="update">
             <input type="checkbox" id="roundtrip" class="mdl-switch__input" data-bind="checked: roundTrip">
             <span class="mdl-switch__label">Roundtrip</span>
           </label>
