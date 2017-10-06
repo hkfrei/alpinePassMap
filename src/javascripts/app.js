@@ -28,19 +28,23 @@ window.onload = function() {
         };
         snackbarContainer.MaterialSnackbar.showSnackbar(data);
     });
-    if (typeof window.google === 'undefined') {
-        var message = 'It seems, there are some serious network problems. ';
-        message += 'The App couldn\'t be loaded properly. ';
-        message += 'We are very sorry an hope you try again later.';
-        alert(message);
-        return;
-    }
     //activate the promise polyfill if necessary
     if (!window.Promise) {
         window.Promise = Promise;
     }
     //Do all the init work like adding all the markers and register event listeners
     viewModel.init();
+};
+
+/*
+@description: This is the error callback function when it was not possible
+to load the google maps api.
+*/
+window.mapError = function() {
+    var message = '🤔 It was impossible to load the Google Maps Api.\n';
+    message += 'The application does not work properly.\n';
+    message += 'Please come back later';
+    alert(message);
 };
 
 /*
@@ -342,8 +346,8 @@ var ViewModel = function() {
         var selectedWaypoints = this.getWaypoints();
         var directionsService = new google.maps.DirectionsService();
         directionsService.route({
-            origin: selectedOrigin, //Ausgangspunkt
-            destination: selectedDestination, //Ziel
+            origin: selectedOrigin,
+            destination: selectedDestination,
             waypoints: selectedWaypoints,
             travelMode: 'BICYCLING'
         }, function(response, status){
