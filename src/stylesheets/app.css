@@ -22,6 +22,7 @@ main,
 
 .offline-header {
 	background-color: #ff5722;
+	display: none;
 }
 
 .mdl-layout__drawer {

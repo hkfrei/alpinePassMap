@@ -1,4 +1,4 @@
-/* global ko google */
+/* global google */
 /*
 @description: Model Data
 */
