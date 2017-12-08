@@ -20,12 +20,25 @@ main,
 	overflow-y: auto;
 }
 
+.offline-header {
+	background-color: #ff5722;
+	display: none;
+}
+
 .mdl-layout__drawer {
 	overflow-x: hidden;
 }
 
 .no-result-found {
 	color: red;
+	display: none;
+}
+
+.visible {
+	display: block;
+}
+
+.hidden {
 	display: none;
 }
 
@@ -47,10 +60,6 @@ main,
 	background-color: white;
 	margin: 10px auto;
 	width: 97%;
-}
-
-.route-details {
-	display: none;
 }
 
 .details-title {

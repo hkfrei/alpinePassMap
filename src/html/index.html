@@ -21,20 +21,26 @@
         <span class="mdl-layout-title">PASS CYCLING PLANER</span>
       </div>
     </header>
+    <header class="mdl-layout__header offline-header" data-bind="css: {visible: offline() === true}">
+    <div class="mdl-layout__header-row">
+      <!-- Offline Text -->
+      <span class="mdl-layout-title">You are offline</span>
+    </div>
+  </header>
     <div class="mdl-layout__drawer">
       <form id="filter" action="#">
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="pass-filter" pattern="[A-Z,a-z, ]*">
+        <input class="mdl-textfield__input" type="text" id="pass-filter" pattern="[A-Z,a-z, ]*" data-bind="value: filter, valueUpdate: 'afterkeydown'">
         <label class="mdl-textfield__label" for="pass-filter">Filter passes...</label>
         <span class="mdl-textfield__error">Letters and spaces only</span>
       </div>
-      <div class="no-result-found">Sorry, no results found</div>
+      <div class="no-result-found" data-bind="css: {visible: filteredList().length < 1}">Sorry, no results found</div>
     </form>
 
       <!-- ko if: selectedMarkers().length < 2 -->
-      <div>
+      <div data-bind="css: {hidden: filteredList().length < 1}">
         <div id="info" class="icon material-icons">info</div>
-        <div class="mdl-tooltip" data-mdl-for="info">
+        <div class="mdl-tooltip" data-mdl-for="info" data-bind="update">
           Switch on some passes to plan your route.
         </div>
       </div>
@@ -42,13 +48,10 @@
 
       <nav class="mdl-navigation">
       	<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-  		  <tbody data-bind="foreach: filteredMarkers">
+  		  <tbody data-bind="foreach: filteredList">
   		    <tr>
             <td class="mdl-data-table__cell--non-numeric">
-              <label class="mdl-switch mdl-js-switch">
-                <input type="checkbox" class="mdl-switch__input toggle" data-bind="checked: selected, event: {click: $parent.displayMarkers}">
-                <span class="mdl-switch__label"></span>
-              </label>
+                <input type="checkbox" data-bind="checked: selected, event: {click: $parent.displayMarkers}">
             </td>
   		      <td class="mdl-data-table__cell--non-numeric pass-list-cell" data-bind="text: name, event: {click: $parent.showPass}"></td>
   		    </tr>
@@ -61,7 +64,7 @@
         </div>
         <div class="mdl-card__actions mdl-card--border">
           <!-- ko if: selectedMarkers().length > 2 -->
-          <label class="mdl-switch mdl-js-switch" for="roundtrip">
+          <label class="mdl-switch mdl-js-switch" for="roundtrip" data-bind="update">
             <input type="checkbox" id="roundtrip" class="mdl-switch__input" data-bind="checked: roundTrip">
             <span class="mdl-switch__label">Roundtrip</span>
           </label>
@@ -72,7 +75,7 @@
         </div>
       </div>
       <!-- /ko -->
-      <div class="mdl-card mdl-shadow--2dp route-details drawer-card">
+      <div class="mdl-card mdl-shadow--2dp route-details drawer-card" data-bind="css: {hidden: routeDetails() === false}">
         <div class="mdl-card__supporting-text">
           <h5>Route details:</h5>
           <p class="details-title">Start Address:</p>
@@ -96,13 +99,9 @@
     <main class="mdl-layout__content">
       <div id="map"></div>
     </main>
-    <div id="toast" class="mdl-js-snackbar mdl-snackbar">
-      <div class="mdl-snackbar__text"></div>
-      <button class="mdl-snackbar__action" type="button"></button>
-    </div>
   </div>
   <script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js"></script>
-  <script type="text/javascript" src="javascripts/app.js" async></script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4RuSmaLvSGKQdlTWFmQxetwHlh7XECk0&libraries=geometry"></script>
+  <script type="text/javascript" src="javascripts/app.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4RuSmaLvSGKQdlTWFmQxetwHlh7XECk0&libraries=geometry" onerror="mapError()"></script>
   </body>
 </html>

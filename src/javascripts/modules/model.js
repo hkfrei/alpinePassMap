@@ -1,4 +1,4 @@
-/* global ko google */
+/* global google */
 /*
 @description: Model Data
 */
@@ -73,11 +73,11 @@ export default (function(){
 
     // represent a single pass
     const Pass = function(id, name, location, visibility, selected) {
-        this.id = ko.observable(id);
-        this.name = ko.observable(name);
-        this.location = ko.observable(location);
-        this.visibility = ko.observable(visibility);
-        this.selected = ko.observable(selected);
+        this.id = id;
+        this.name = name;
+        this.location = location;
+        this.visibility = visibility;
+        this.selected = selected;
     };
 
     // initial center coordinates of the map

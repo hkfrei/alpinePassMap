@@ -71,9 +71,9 @@ export default (function(){
                 infoWindow.setContent(getStreetViewFailureContent(infoWindow));
             }
         };
-        /* 
+        /*
         Use streetview service to get the closest streetview image within
-        50 meters of the markers position 
+        50 meters of the markers position
         */
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
         infoWindow.open(map, marker);
@@ -110,35 +110,33 @@ export default (function(){
     @param {boolean} wikifail - a boolean value to indicate that it was not possible to load wikipedia infos.
     */
     const populateInfoWindow = function(marker, infoWindow) {
-        //make sure the info window is not already opened on this marker
-        if (infoWindow.marker !== marker) {
-            // clear infoWindow content to give the streetview time to load.
-            infoWindow.setContent('');
-            infoWindow.marker = marker;
-            // make sure the marker property is cleared if the infoWindow is closed
-            infoWindow.addListener('closeclick', function() {
-                infoWindow.marker = null;
+        // clear infoWindow content to give the streetview time to load.
+        infoWindow.setContent('');
+        infoWindow.marker = marker;
+        // make sure the marker property is cleared if the infoWindow is closed
+        infoWindow.addListener('closeclick', function() {
+            infoWindow.marker = null;
+        });
+        getWikipediaArticle(marker.title)
+            .then(function(result) {
+                var name = result[0];
+                var description = result[2][0] || 'Sorry, no Wikipedia description available';
+                var link = result[3][0] || 'Sorry, no Wikipedia article available';
+                infoWindow.setContent(getIwContent(name, description, link));
+                //add streetView data to the Info Window
+                getStreetViewPanorama(marker, infoWindow);
+            })
+            .catch(function(errorMessage) {
+                // fetch failed. Add a corresponding message to the info window.
+                var name = marker.title;
+                var description = 'Because of network problems, it\'s impossible to load Wikipedia info, sorry.';
+                description += '<br>Reason: ' + errorMessage;
+                description = description.replace('(This text is provided by Wikipedia)', '');
+                var link = false;
+                infoWindow.setContent(getIwContent(name, description, link));
+                getStreetViewPanorama(marker, infoWindow);
             });
-            getWikipediaArticle(marker.title)
-                .then(function(result) {
-                    var name = result[0];
-                    var description = result[2][0] || 'Sorry, no Wikipedia description available';
-                    var link = result[3][0] || 'Sorry, no Wikipedia article available';
-                    infoWindow.setContent(getIwContent(name, description, link));
-                    //add streetView data to the Info Window
-                    getStreetViewPanorama(marker, infoWindow);
-                })
-                .catch(function(errorMessage) {
-                    // fetch failed. Add a corresponding message to the info window.
-                    var name = marker.title;
-                    var description = 'Because of network problems, it\'s impossible to load Wikipedia info, sorry.';
-                    description += '<br>Reason: ' + errorMessage;
-                    description = description.replace('(This text is provided by Wikipedia)', '');
-                    var link = false;
-                    infoWindow.setContent(getIwContent(name, description, link));
-                    getStreetViewPanorama(marker, infoWindow);
-                });
-        }
+
     };
 
     return {
