@@ -16,7 +16,7 @@ export default (function(){
         {
             id: 2,
             title: 'Furkapass',
-            location: {lat:46.572794128573726, lng: 8.41529130935669},
+            location: {lat: 46.572794128573726, lng: 8.41529130935669},
             visible: true,
             selected: false
         },

@@ -401,6 +401,6 @@ var ViewModel = function() {
         }
     };
 };
-// activate knockout 
+// activate knockout
 var viewModel = new ViewModel();
 ko.applyBindings(viewModel);
